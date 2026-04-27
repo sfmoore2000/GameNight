@@ -1,0 +1,6 @@
+{
+  "name": "Game Night",
+  "description": "A comprehensive performance tracker for game nights, managing players, locations, staff, and financial buy-ins across multiple payment methods.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

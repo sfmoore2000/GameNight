@@ -1,0 +1,177 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // -------------------------------------------------------------------------
+    // 0. Global Safety Net
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Primitive Definitions & Helpers
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isHost() {
+      return isVerified() && request.auth.token.email == 'sfmoore2000@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Schema Validators
+    // -------------------------------------------------------------------------
+    function isValidPlayer(data) {
+      return data.keys().hasAll(['name', 'active', 'createdAt']) &&
+             data.keys().size() >= 3 && data.keys().size() <= 5 &&
+             data.name is string && data.name.size() <= 100 &&
+             (data.keys().hasAny(['email']) ? (data.email is string && data.email.size() <= 100) : true) &&
+             data.active is bool &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidLocation(data) {
+      return data.keys().hasAll(['name', 'address', 'active', 'createdAt']) &&
+             data.keys().size() >= 4 && data.keys().size() <= 5 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.address is string && data.address.size() <= 200 &&
+             data.active is bool &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidStaff(data) {
+      return data.keys().hasAll(['name', 'active', 'createdAt']) &&
+             data.keys().size() >= 3 && data.keys().size() <= 4 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.active is bool &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['date', 'locationId', 'status', 'staffIds', 'totalBuyIn', 'createdAt']) &&
+             data.keys().size() >= 7 && data.keys().size() <= 9 &&
+             data.date is timestamp &&
+             data.locationId is string &&
+             data.status in ['scheduled', 'active', 'completed'] &&
+             data.staffIds is list &&
+             data.totalBuyIn is number &&
+             (data.keys().hasAny(['totalPayout']) ? data.totalPayout is number : true) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidEntry(data) {
+      let requiredKeys = ['sessionId', 'playerId', 'playerDisplayName', 'buyIns', 'totalBuyIn', 'status'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.sessionId is string &&
+             data.playerId is string &&
+             data.playerDisplayName is string &&
+             data.buyIns is list &&
+             data.totalBuyIn is number &&
+             data.status in ['playing', 'finished'] &&
+             (data.keys().hasAny(['payouts']) ? data.payouts is list : true) &&
+             (data.keys().hasAny(['totalPayout']) ? data.totalPayout is number : true) &&
+             (data.keys().hasAny(['creditSettlements']) ? data.creditSettlements is list : true) &&
+             (data.keys().hasAny(['totalSettled']) ? data.totalSettled is number : true) &&
+             (data.keys().hasAny(['netProfit']) ? data.netProfit is number : true);
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Match Blocks
+    // -------------------------------------------------------------------------
+    
+    function isValidStaffEntry(data) {
+      return data.keys().hasAll(['sessionId', 'staffId', 'staffDisplayName', 'payoutAmount', 'method', 'createdAt']) &&
+             data.keys().size() >= 6 &&
+             data.sessionId is string &&
+             data.staffId is string &&
+             data.staffDisplayName is string &&
+             data.payoutAmount is number &&
+             data.method in ['cash', 'cash_app', 'apple_pay', 'venmo', 'paypal', 'chime', 'credit'] &&
+             data.createdAt is timestamp &&
+             (data.keys().hasAny(['notes']) ? (data.notes is string && data.notes.size() <= 500) : true);
+    }
+
+    match /players/{playerId} {
+      allow read: if isVerified();
+      allow create: if isHost() && isValidPlayer(incoming()) && incoming().createdAt == request.time && isValidId(playerId);
+      allow update: if isHost() && isValidPlayer(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'email', 'active'])
+      );
+      allow delete: if isHost();
+    }
+
+    match /locations/{locationId} {
+      allow read: if isVerified();
+      allow create: if isHost() && isValidLocation(incoming()) && incoming().createdAt == request.time && isValidId(locationId);
+      allow update: if isHost() && isValidLocation(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'address', 'active'])
+      );
+      allow delete: if isHost();
+    }
+
+    match /staff/{staffId} {
+      allow read: if isVerified();
+      allow create: if isHost() && isValidStaff(incoming()) && incoming().createdAt == request.time && isValidId(staffId);
+      allow update: if isHost() && isValidStaff(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'active'])
+      );
+      allow delete: if isHost();
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isVerified();
+      allow create: if isHost() && isValidSession(incoming()) && incoming().createdAt == request.time && isValidId(sessionId);
+      allow update: if isHost() && isValidSession(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'staffIds', 'totalBuyIn', 'totalPayout', 'date', 'locationId'])
+      );
+      allow delete: if isHost();
+      
+      match /entries/{entryId} {
+        allow read: if isVerified();
+        allow create: if isHost() && isValidEntry(incoming()) && isValidId(entryId);
+        allow update: if isHost() && isValidEntry(incoming()) && (
+          incoming().sessionId == existing().sessionId &&
+          incoming().playerId == existing().playerId &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['buyIns', 'totalBuyIn', 'payouts', 'totalPayout', 'creditSettlements', 'totalSettled', 'netProfit', 'status', 'playerDisplayName'])
+        );
+        allow delete: if isHost();
+      }
+
+      match /staff_entries/{entryId} {
+        allow read: if isVerified();
+        allow create: if isHost() && isValidStaffEntry(incoming()) && incoming().createdAt == request.time && isValidId(entryId);
+        allow update: if isHost() && isValidStaffEntry(incoming()) && (
+          incoming().createdAt == existing().createdAt &&
+          incoming().sessionId == existing().sessionId &&
+          incoming().staffId == existing().staffId &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['payoutAmount', 'method', 'notes'])
+        );
+        allow delete: if isHost();
+      }
+    }
+  }
+}

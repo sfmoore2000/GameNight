@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "A person who participates in game nights.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the player." },
+        "email": { "type": "string", "format": "email", "description": "Optional email for the player." },
+        "active": { "type": "boolean", "description": "Whether the player is currently active in the roster." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "active", "createdAt"]
+    },
+    "Location": {
+      "title": "Location",
+      "description": "A venue where game nights are hosted.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the location." },
+        "address": { "type": "string", "description": "Physical address of the location." },
+        "active": { "type": "boolean", "description": "Whether the location is currently available for hosting." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "active", "createdAt"]
+    },
+    "Staff": {
+      "title": "Staff",
+      "description": "Massage staff available during game nights.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the staff member." },
+        "active": { "type": "boolean", "description": "Whether the staff member is currently active." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "active", "createdAt"]
+    },
+    "Session": {
+      "title": "Session",
+      "description": "A single game night event.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time", "description": "Date of the session." },
+        "locationId": { "type": "string", "description": "ID of the location." },
+        "staffIds": { "type": "array", "items": { "type": "string" }, "description": "IDs of staff present." },
+        "status": { "type": "string", "enum": ["scheduled", "active", "completed"], "description": "Current status of the session." },
+        "totalBuyIn": { "type": "number", "description": "Total buy-ins collected across all players." },
+        "totalPayout": { "type": "number", "description": "Total payouts to players at the end of the night." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "locationId", "status", "createdAt"]
+    },
+    "PlayerSessionEntry": {
+      "title": "Player Session Entry",
+      "description": "Tracking of a specific player's performance in a session.",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "playerId": { "type": "string" },
+        "playerDisplayName": { "type": "string" },
+        "buyIns": {
+          "type": "array",
+          "items": { "$ref": "BuyIn" }
+        },
+        "totalBuyIn": { "type": "number" },
+        "payouts": {
+          "type": "array",
+          "items": { "$ref": "Payout" }
+        },
+        "totalPayout": { "type": "number" },
+        "creditSettlements": {
+          "type": "array",
+          "items": { "$ref": "Settlement" }
+        },
+        "totalSettled": { "type": "number" },
+        "netProfit": { "type": "number", "description": "Positive for win, negative for loss." },
+        "status": { "type": "string", "enum": ["playing", "finished"] }
+      },
+      "required": ["sessionId", "playerId", "playerDisplayName", "buyIns", "totalBuyIn", "payouts", "totalPayout", "status"]
+    },
+    "BuyIn": {
+      "title": "Buy-In Record",
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["cash", "cash_app", "apple_pay", "venmo", "paypal", "chime", "credit"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["amount", "method", "timestamp"]
+    },
+    "Payout": {
+      "title": "Payout Record",
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["cash", "cash_app", "apple_pay", "venmo", "paypal", "chime", "credit"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["amount", "method", "timestamp"]
+    },
+    "Settlement": {
+      "title": "Settlement Record",
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["cash", "cash_app", "apple_pay", "venmo", "paypal", "chime"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["amount", "method", "timestamp"]
+    },
+    "StaffSessionEntry": {
+      "title": "Staff Session Entry",
+      "description": "Tracking of a specific staff member's performance and payout in a session.",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "staffDisplayName": { "type": "string" },
+        "payoutAmount": { "type": "number" },
+        "method": { "type": "string", "enum": ["cash", "cash_app", "apple_pay", "venmo", "paypal", "chime", "credit"] },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sessionId", "staffId", "staffDisplayName", "payoutAmount", "method", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/players/{playerId}": { "schema": "Player", "description": "Global player roster." },
+    "/locations/{locationId}": { "schema": "Location", "description": "Available venues." },
+    "/staff/{staffId}": { "schema": "Staff", "description": "Massage staff roster." },
+    "/sessions/{sessionId}": { "schema": "Session", "description": "Game night sessions." },
+    "/sessions/{sessionId}/entries/{entryId}": { "schema": "PlayerSessionEntry", "description": "Player performance data for a session." },
+    "/sessions/{sessionId}/staff_entries/{entryId}": { "schema": "StaffSessionEntry", "description": "Staff payout data for a session." }
+  }
+}
