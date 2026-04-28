@@ -6,7 +6,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 import { useState, useEffect } from 'react';
-import { auth } from './lib/firebase';
+import { auth, testConnection } from './lib/firebase';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { SessionDetail } from './pages/SessionDetail';
@@ -20,6 +20,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Test connectivity in background
+    testConnection();
+
+    if (!auth) {
+      console.error("Authentication service not initialized.");
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
