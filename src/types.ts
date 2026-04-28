@@ -1,11 +1,9 @@
-import { Timestamp } from 'firebase/firestore';
-
 export interface Player {
   id: string;
   name: string;
   email?: string;
   active: boolean;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
 export interface Location {
@@ -13,14 +11,14 @@ export interface Location {
   name: string;
   address: string;
   active: boolean;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
 export interface Staff {
   id: string;
   name: string;
   active: boolean;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
 export type PaymentMethod = 'cash' | 'cash_app' | 'apple_pay' | 'venmo' | 'paypal' | 'chime' | 'credit';
@@ -28,24 +26,24 @@ export type PaymentMethod = 'cash' | 'cash_app' | 'apple_pay' | 'venmo' | 'paypa
 export interface BuyIn {
   amount: number;
   method: PaymentMethod;
-  timestamp: Timestamp;
+  timestamp: string;
 }
 
 export interface Session {
   id: string;
-  date: Timestamp;
+  date: string;
   locationId: string;
   staffIds: string[];
   status: 'scheduled' | 'active' | 'completed';
   totalBuyIn: number;
   totalPayout: number;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
 export interface Payout {
   amount: number;
   method: PaymentMethod;
-  timestamp: Timestamp;
+  timestamp: string;
 }
 
 export interface PlayerSessionEntry {
@@ -69,7 +67,7 @@ export interface StaffSessionEntry {
   payoutAmount: number;
   method: PaymentMethod;
   notes?: string;
-  createdAt: Timestamp;
+  createdAt: string;
 }
 
 export const PAYMENT_METHODS: { id: PaymentMethod; label: string }[] = [

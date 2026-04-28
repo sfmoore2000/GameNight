@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, Timestamp, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { Location } from '../types';
-import { Plus, MapPin, Navigation, ToggleLeft, ToggleRight, Building, Edit2 } from 'lucide-react';
+import { Plus, MapPin, Building, Edit2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -14,34 +13,55 @@ export function LocationsPage() {
   const [newAddress, setNewAddress] = useState('');
 
   useEffect(() => {
-    const q = query(collection(db, 'locations'), orderBy('name', 'asc'));
-    return onSnapshot(q, (snapshot) => {
-      setLocations(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Location)));
-    });
+    async function fetchLocations() {
+      const { data } = await supabase
+        .from('locations')
+        .select('*')
+        .order('name', { ascending: true });
+      if (data) setLocations(data as Location[]);
+    }
+
+    fetchLocations();
+
+    const subscription = supabase
+      .channel('locations-channel')
+      .on('postgres_changes', { event: '*', table: 'locations', schema: 'public' }, () => fetchLocations())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const saveLocation = async () => {
     if (!newName) return;
     try {
       if (editingLocation) {
-        await updateDoc(doc(db, 'locations', editingLocation.id), {
-          name: newName,
-          address: newAddress,
-        });
+        const { error } = await supabase
+          .from('locations')
+          .update({
+            name: newName,
+            address: newAddress,
+          })
+          .eq('id', editingLocation.id);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'locations'), {
-          name: newName,
-          address: newAddress,
-          active: true,
-          createdAt: serverTimestamp()
-        });
+        const { error } = await supabase
+          .from('locations')
+          .insert([{
+            name: newName,
+            address: newAddress,
+            active: true,
+            createdAt: new Date().toISOString()
+          }]);
+        if (error) throw error;
       }
       setNewName('');
       setNewAddress('');
       setIsAdding(false);
       setEditingLocation(null);
     } catch (error) {
-      handleFirestoreError(error, editingLocation ? 'update' : 'create', editingLocation ? `locations/${editingLocation.id}` : 'locations');
+      console.error("Save location failed:", error);
     }
   };
 
@@ -54,11 +74,15 @@ export function LocationsPage() {
 
   const toggleLocationStatus = async (location: Location) => {
     try {
-      await updateDoc(doc(db, 'locations', location.id), {
-        active: !location.active
-      });
+      const { error } = await supabase
+        .from('locations')
+        .update({
+          active: !location.active
+        })
+        .eq('id', location.id);
+      if (error) throw error;
     } catch (error) {
-      handleFirestoreError(error, 'update', `locations/${location.id}`);
+      console.error("Toggle status failed:", error);
     }
   };
 

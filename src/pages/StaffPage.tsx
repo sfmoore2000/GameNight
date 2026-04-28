@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, Timestamp, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { Staff } from '../types';
-import { Sparkles, Star, UserCheck, UserX, Plus, Edit2 } from 'lucide-react';
+import { Star, Plus, Edit2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -13,31 +12,52 @@ export function StaffPage() {
   const [newName, setNewName] = useState('');
 
   useEffect(() => {
-    const q = query(collection(db, 'staff'), orderBy('name', 'asc'));
-    return onSnapshot(q, (snapshot) => {
-      setStaff(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Staff)));
-    });
+    async function fetchStaff() {
+      const { data } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name', { ascending: true });
+      if (data) setStaff(data as Staff[]);
+    }
+
+    fetchStaff();
+
+    const subscription = supabase
+      .channel('staff-channel')
+      .on('postgres_changes', { event: '*', table: 'staff', schema: 'public' }, () => fetchStaff())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const saveStaff = async () => {
     if (!newName) return;
     try {
       if (editingStaff) {
-        await updateDoc(doc(db, 'staff', editingStaff.id), {
-          name: newName,
-        });
+        const { error } = await supabase
+          .from('staff')
+          .update({
+            name: newName,
+          })
+          .eq('id', editingStaff.id);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'staff'), {
-          name: newName,
-          active: true,
-          createdAt: serverTimestamp()
-        });
+        const { error } = await supabase
+          .from('staff')
+          .insert([{
+            name: newName,
+            active: true,
+            createdAt: new Date().toISOString()
+          }]);
+        if (error) throw error;
       }
       setNewName('');
       setIsAdding(false);
       setEditingStaff(null);
     } catch (error) {
-       handleFirestoreError(error, editingStaff ? 'update' : 'create', editingStaff ? `staff/${editingStaff.id}` : 'staff');
+       console.error("Save staff failed:", error);
     }
   };
 
@@ -49,11 +69,15 @@ export function StaffPage() {
 
   const toggleStaffStatus = async (s: Staff) => {
     try {
-      await updateDoc(doc(db, 'staff', s.id), {
-        active: !s.active
-      });
+      const { error } = await supabase
+        .from('staff')
+        .update({
+          active: !s.active
+        })
+        .eq('id', s.id);
+      if (error) throw error;
     } catch (error) {
-      handleFirestoreError(error, 'update', `staff/${s.id}`);
+      console.error("Toggle status failed:", error);
     }
   };
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { doc, collection, query, orderBy, limit, onSnapshot, addDoc, Timestamp, serverTimestamp, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
-import { db, handleFirestoreError } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { Session, Location } from '../types';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Plus, ChevronRight, Activity, Calendar, MapPin, DollarSign, Trash2, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, cn } from '../lib/utils';
@@ -19,39 +18,62 @@ export function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const sessionsQuery = query(collection(db, 'sessions'), orderBy('date', 'desc'), limit(10));
-    const locationsQuery = query(collection(db, 'locations'), orderBy('name', 'asc'));
+    async function fetchData() {
+      const { data: sessionsData } = await supabase
+        .from('sessions')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(10);
+      
+      const { data: locationsData } = await supabase
+        .from('locations')
+        .select('*')
+        .order('name', { ascending: true });
 
-    const unsubscribeSessions = onSnapshot(sessionsQuery, (snapshot) => {
-      setSessions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Session)));
+      if (sessionsData) setSessions(sessionsData as Session[]);
+      if (locationsData) setLocations(locationsData as Location[]);
       setLoading(false);
-    });
+    }
 
-    const unsubscribeLocations = onSnapshot(locationsQuery, (snapshot) => {
-      setLocations(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Location)));
-    });
+    fetchData();
+
+    // Set up real-time subscriptions
+    const sessionsSubscription = supabase
+      .channel('sessions-channel')
+      .on('postgres_changes', { event: '*', table: 'sessions', schema: 'public' }, () => fetchData())
+      .subscribe();
+
+    const locationsSubscription = supabase
+      .channel('locations-channel')
+      .on('postgres_changes', { event: '*', table: 'locations', schema: 'public' }, () => fetchData())
+      .subscribe();
 
     return () => {
-      unsubscribeSessions();
-      unsubscribeLocations();
+      supabase.removeChannel(sessionsSubscription);
+      supabase.removeChannel(locationsSubscription);
     };
   }, []);
 
   const createSession = async (locationId: string) => {
     try {
-      const newSession = {
-        date: Timestamp.now(),
-        locationId,
-        status: 'active',
-        staffIds: [],
-        totalBuyIn: 0,
-        totalPayout: 0,
-        createdAt: serverTimestamp(),
-      };
-      const docRef = await addDoc(collection(db, 'sessions'), newSession);
-      navigate(`/sessions/${docRef.id}`);
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert([{
+          date: new Date().toISOString(),
+          locationId,
+          status: 'active',
+          staffIds: [],
+          totalBuyIn: 0,
+          totalPayout: 0,
+          createdAt: new Date().toISOString(),
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) navigate(`/sessions/${data.id}`);
     } catch (error) {
-      handleFirestoreError(error, 'create', 'sessions');
+      console.error("Create session failed:", error);
     }
   };
 
@@ -60,25 +82,19 @@ export function Dashboard() {
 
     setIsDeleting(true);
     try {
-      const batch = writeBatch(db);
-      
-      // 1. Queue all player entries for deletion
-      const entriesSnapshot = await getDocs(collection(db, 'sessions', sessionToDelete.id, 'entries'));
-      entriesSnapshot.forEach((doc) => batch.delete(doc.ref));
+      // In Supabase, cascading deletes should be handled by schema, 
+      // but if not, we do it manually. Assuming FKs are set to cascade.
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('id', sessionToDelete.id);
 
-      // 2. Queue all staff entries for deletion
-      const staffEntriesSnapshot = await getDocs(collection(db, 'sessions', sessionToDelete.id, 'staff_entries'));
-      staffEntriesSnapshot.forEach((doc) => batch.delete(doc.ref));
+      if (error) throw error;
 
-      // 3. Queue the session itself
-      batch.delete(doc(db, 'sessions', sessionToDelete.id));
-
-      await batch.commit();
       setSessionToDelete(null);
       setDeleteConfirmationInput('');
     } catch (error) {
       console.error("Delete failed:", error);
-      handleFirestoreError(error, 'delete', `sessions/${sessionToDelete.id}`);
     } finally {
       setIsDeleting(false);
     }
@@ -190,7 +206,7 @@ export function Dashboard() {
                   <tr key={session.id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-900">{format(session.date.toDate(), 'MMM d, yyyy')}</span>
+                        <span className="text-sm font-bold text-slate-900">{format(parseISO(session.date), 'MMM d, yyyy')}</span>
                         <span className="font-mono text-[8px] text-slate-300 uppercase mt-0.5 tracking-tighter">#{session.id.slice(0, 12)}</span>
                       </div>
                     </td>
@@ -330,7 +346,7 @@ export function Dashboard() {
               <div className="space-y-6">
                 <div className="bg-rose-50 border border-rose-100 p-6 rounded-2xl">
                   <p className="text-sm text-rose-800 font-medium leading-relaxed">
-                    You are about to permanently delete all financial records, audit logs, and player entries for the session on <span className="font-black underline">{format(sessionToDelete.date.toDate(), 'MMMM d, yyyy')}</span>.
+                    You are about to permanently delete all financial records, audit logs, and player entries for the session on <span className="font-black underline">{format(parseISO(sessionToDelete.date), 'MMMM d, yyyy')}</span>.
                   </p>
                   <p className="mt-4 text-[10px] text-rose-600 font-bold uppercase tracking-widest">
                     This action is computationally irreversible.

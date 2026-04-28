@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, collection, query, orderBy, updateDoc, addDoc, Timestamp, writeBatch, getDoc, deleteDoc, getDocs, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { Session, PlayerSessionEntry, StaffSessionEntry, Player, Staff, Location, PAYMENT_METHODS, PaymentMethod } from '../types';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Plus, ArrowLeft, MoreHorizontal, UserPlus, DollarSign, CheckCircle2, XCircle, Loader2, Trash2, MapPin, CreditCard } from 'lucide-react';
 import { formatCurrency, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,46 +41,38 @@ export function SessionDetail() {
   useEffect(() => {
     if (!id) return;
 
-    const sessionRef = doc(db, 'sessions', id);
-    const entriesRef = collection(db, 'sessions', id, 'entries');
-    const staffEntriesRef = collection(db, 'sessions', id, 'staff_entries');
-    const playersQuery = query(collection(db, 'players'), orderBy('name', 'asc'));
-    const staffQuery = query(collection(db, 'staff'), orderBy('name', 'asc'));
-    const locationsQuery = query(collection(db, 'locations'), orderBy('name', 'asc'));
+    async function fetchData() {
+      const [{ data: sessionData }, { data: entriesData }, { data: staffEntriesData }, { data: playersData }, { data: staffData }, { data: locationsData }] = await Promise.all([
+        supabase.from('sessions').select('*').eq('id', id).single(),
+        supabase.from('player_session_entries').select('*').eq('sessionId', id),
+        supabase.from('staff_session_entries').select('*').eq('sessionId', id),
+        supabase.from('players').select('*').order('name', { ascending: true }),
+        supabase.from('staff').select('*').order('name', { ascending: true }),
+        supabase.from('locations').select('*').order('name', { ascending: true })
+      ]);
 
-    const unsubSession = onSnapshot(sessionRef, (doc) => {
-      if (doc.exists()) setSession({ id: doc.id, ...doc.data() } as Session);
+      if (sessionData) setSession(sessionData as Session);
       else navigate('/');
-    });
 
-    const unsubEntries = onSnapshot(entriesRef, (snapshot) => {
-      setEntries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlayerSessionEntry)));
-    });
-
-    const unsubStaffEntries = onSnapshot(staffEntriesRef, (snapshot) => {
-      setStaffEntries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StaffSessionEntry)));
+      if (entriesData) setEntries(entriesData as PlayerSessionEntry[]);
+      if (staffEntriesData) setStaffEntries(staffEntriesData as StaffSessionEntry[]);
+      if (playersData) setAvailablePlayers(playersData as Player[]);
+      if (staffData) setAllStaff(staffData as Staff[]);
+      if (locationsData) setLocations(locationsData as Location[]);
       setLoading(false);
-    });
+    }
 
-    const unsubPlayers = onSnapshot(playersQuery, (snapshot) => {
-      setAvailablePlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Player)));
-    });
+    fetchData();
 
-    const unsubStaff = onSnapshot(staffQuery, (snapshot) => {
-      setAllStaff(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Staff)));
-    });
-
-    const unsubLocations = onSnapshot(locationsQuery, (snapshot) => {
-      setLocations(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Location)));
-    });
+    // Set up real-time subscriptions
+    const channel = supabase.channel(`session-${id}`)
+      .on('postgres_changes', { event: '*', table: 'sessions', schema: 'public', filter: `id=eq.${id}` }, () => fetchData())
+      .on('postgres_changes', { event: '*', table: 'player_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, () => fetchData())
+      .on('postgres_changes', { event: '*', table: 'staff_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, () => fetchData())
+      .subscribe();
 
     return () => {
-      unsubSession();
-      unsubEntries();
-      unsubStaffEntries();
-      unsubPlayers();
-      unsubStaff();
-      unsubLocations();
+      supabase.removeChannel(channel);
     };
   }, [id, navigate]);
 
@@ -92,7 +83,7 @@ export function SessionDetail() {
     try {
       const buyInVal = parseFloat(initialBuyIn) || 0;
       const buyIns = buyInVal > 0 
-        ? [{ amount: buyInVal, method: initialMethod, timestamp: Timestamp.now() }]
+        ? [{ amount: buyInVal, method: initialMethod, timestamp: new Date().toISOString() }]
         : [];
 
       const entry: Partial<PlayerSessionEntry> = {
@@ -107,23 +98,28 @@ export function SessionDetail() {
         status: 'playing',
       };
 
-      const batch = writeBatch(db);
-      const entryRef = doc(collection(db, 'sessions', id, 'entries'));
-      batch.set(entryRef, entry);
+      const { error: entryError } = await supabase
+        .from('player_session_entries')
+        .insert([entry]);
+
+      if (entryError) throw entryError;
 
       if (buyInVal > 0) {
-        batch.update(doc(db, 'sessions', id), {
-          totalBuyIn: (session.totalBuyIn || 0) + buyInVal
-        });
+        const { error: sessionError } = await supabase
+          .from('sessions')
+          .update({
+            totalBuyIn: (session.totalBuyIn || 0) + buyInVal
+          })
+          .eq('id', id);
+        if (sessionError) throw sessionError;
       }
 
-      await batch.commit();
       setIsAddingPlayer(false);
       setSelectedPlayerForAdd(null);
       setInitialBuyIn('');
       setInitialMethod('cash');
     } catch (error) {
-      handleFirestoreError(error, 'create', `sessions/${id}/entries`);
+      console.error("Add player failed:", error);
     }
   };
 
@@ -133,29 +129,37 @@ export function SessionDetail() {
     if (isNaN(amount) || amount <= 0) return;
 
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
-      const newBuyIn = { amount, method, timestamp: Timestamp.now() };
+      const newBuyIn = { amount, method, timestamp: new Date().toISOString() };
       const newBuyIns = [...entry.buyIns, newBuyIn];
       const newTotal = newBuyIns.reduce((acc, b) => acc + b.amount, 0);
 
-      await updateDoc(entryRef, {
-        buyIns: newBuyIns,
-        totalBuyIn: newTotal,
-        netProfit: (entry.totalPayout || 0) - newTotal
-      });
+      const { error: entryError } = await supabase
+        .from('player_session_entries')
+        .update({
+          buyIns: newBuyIns,
+          totalBuyIn: newTotal,
+          netProfit: (entry.totalPayout || 0) - newTotal
+        })
+        .eq('id', entryId);
+
+      if (entryError) throw entryError;
 
       // Update session total
-      const sessionRef = doc(db, 'sessions', id);
-      await updateDoc(sessionRef, {
-        totalBuyIn: (session?.totalBuyIn || 0) + amount
-      });
+      const { error: sessionError } = await supabase
+        .from('sessions')
+        .update({
+          totalBuyIn: (session?.totalBuyIn || 0) + amount
+        })
+        .eq('id', id);
+
+      if (sessionError) throw sessionError;
 
       setBuyInAmount('');
     } catch (error) {
-       handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+       console.error("Add buy-in failed:", error);
     }
   };
 
@@ -163,7 +167,6 @@ export function SessionDetail() {
     if (!id || !window.confirm('Delete this buy-in record? This will adjust totals instantly.')) return;
     
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
@@ -172,19 +175,28 @@ export function SessionDetail() {
       const newBuyIns = buyIns.filter((_, i) => i !== index);
       const newTotal = newBuyIns.reduce((acc, b) => acc + b.amount, 0);
 
-      await updateDoc(entryRef, {
-        buyIns: newBuyIns,
-        totalBuyIn: newTotal,
-        netProfit: (entry.totalPayout || 0) - newTotal
-      });
+      const { error: entryError } = await supabase
+        .from('player_session_entries')
+        .update({
+          buyIns: newBuyIns,
+          totalBuyIn: newTotal,
+          netProfit: (entry.totalPayout || 0) - newTotal
+        })
+        .eq('id', entryId);
+
+      if (entryError) throw entryError;
 
       // Update session total
-      const sessionRef = doc(db, 'sessions', id);
-      await updateDoc(sessionRef, {
-        totalBuyIn: (session?.totalBuyIn || 0) - removedAmount
-      });
+      const { error: sessionError } = await supabase
+        .from('sessions')
+        .update({
+          totalBuyIn: (session?.totalBuyIn || 0) - removedAmount
+        })
+        .eq('id', id);
+      
+      if (sessionError) throw sessionError;
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+      console.error("Remove buy-in failed:", error);
     }
   };
 
@@ -195,25 +207,29 @@ export function SessionDetail() {
     if (isNaN(amount) || amount <= 0) return;
 
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
-      const newPayout = { amount, method, timestamp: Timestamp.now() };
+      const newPayout = { amount, method, timestamp: new Date().toISOString() };
       const newPayouts = [...(entry.payouts || []), newPayout];
       const newTotalPayout = newPayouts.reduce((acc, p) => acc + p.amount, 0);
       
-      await updateDoc(entryRef, {
-        payouts: newPayouts,
-        totalPayout: newTotalPayout,
-        netProfit: newTotalPayout - (entry.totalBuyIn || 0),
-      });
+      const { error } = await supabase
+        .from('player_session_entries')
+        .update({
+          payouts: newPayouts,
+          totalPayout: newTotalPayout,
+          netProfit: newTotalPayout - (entry.totalBuyIn || 0),
+        })
+        .eq('id', entryId);
+
+      if (error) throw error;
 
       if (amountOverride === undefined) {
         setCashOutAmount('');
       }
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+      console.error("Cash out failed:", error);
     }
   };
 
@@ -221,20 +237,24 @@ export function SessionDetail() {
     if (!id || !window.confirm('Delete this payout record?')) return;
     
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
       const newPayouts = (entry.payouts || []).filter((_, i) => i !== index);
       const newTotalPayout = newPayouts.reduce((acc, p) => acc + p.amount, 0);
 
-      await updateDoc(entryRef, {
-        payouts: newPayouts,
-        totalPayout: newTotalPayout,
-        netProfit: newTotalPayout - (entry.totalBuyIn || 0)
-      });
+      const { error } = await supabase
+        .from('player_session_entries')
+        .update({
+          payouts: newPayouts,
+          totalPayout: newTotalPayout,
+          netProfit: newTotalPayout - (entry.totalBuyIn || 0)
+        })
+        .eq('id', entryId);
+
+      if (error) throw error;
     } catch (error) {
-       handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+       console.error("Remove payout failed:", error);
     }
   };
 
@@ -244,22 +264,26 @@ export function SessionDetail() {
     if (isNaN(amount) || amount <= 0) return;
 
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
-      const newSettlement = { amount, method, timestamp: Timestamp.now() };
+      const newSettlement = { amount, method, timestamp: new Date().toISOString() };
       const newSettlements = [...(entry.creditSettlements || []), newSettlement];
       const newTotalSettled = newSettlements.reduce((acc, s) => acc + s.amount, 0);
 
-      await updateDoc(entryRef, {
-        creditSettlements: newSettlements,
-        totalSettled: newTotalSettled
-      });
+      const { error } = await supabase
+        .from('player_session_entries')
+        .update({
+          creditSettlements: newSettlements,
+          totalSettled: newTotalSettled
+        })
+        .eq('id', entryId);
+
+      if (error) throw error;
 
       setSettlementAmount('');
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+      console.error("Settle credit failed:", error);
     }
   };
 
@@ -267,19 +291,23 @@ export function SessionDetail() {
     if (!id || !window.confirm('Delete this settlement record?')) return;
     
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
       const entry = entries.find(e => e.id === entryId);
       if (!entry) return;
 
       const newSettlements = (entry.creditSettlements || []).filter((_, i) => i !== index);
       const newTotalSettled = newSettlements.reduce((acc, s) => acc + s.amount, 0);
 
-      await updateDoc(entryRef, {
-        creditSettlements: newSettlements,
-        totalSettled: newTotalSettled
-      });
+      const { error } = await supabase
+        .from('player_session_entries')
+        .update({
+          creditSettlements: newSettlements,
+          totalSettled: newTotalSettled
+        })
+        .eq('id', entryId);
+
+      if (error) throw error;
     } catch (error) {
-       handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+       console.error("Remove settlement failed:", error);
     }
   };
 
@@ -289,12 +317,16 @@ export function SessionDetail() {
     if (!entry) return;
 
     try {
-      const entryRef = doc(db, 'sessions', id, 'entries', entryId);
-      await updateDoc(entryRef, {
-        status: entry.status === 'playing' ? 'finished' : 'playing'
-      });
+      const { error } = await supabase
+        .from('player_session_entries')
+        .update({
+          status: entry.status === 'playing' ? 'finished' : 'playing'
+        })
+        .eq('id', entryId);
+
+      if (error) throw error;
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${id}/entries/${entryId}`);
+      console.error("Toggle status failed:", error);
     }
   };
 
@@ -309,12 +341,16 @@ export function SessionDetail() {
         staffDisplayName: staff.name,
         payoutAmount: 0,
         method: 'cash',
-        createdAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
       };
-      await addDoc(collection(db, 'sessions', id, 'staff_entries'), entry);
+      const { error } = await supabase
+        .from('staff_session_entries')
+        .insert([entry]);
+
+      if (error) throw error;
       setIsAddingStaff(false);
     } catch (error) {
-      handleFirestoreError(error, 'create', `sessions/${id}/staff_entries`);
+      console.error("Add staff failed:", error);
     }
   };
 
@@ -324,30 +360,39 @@ export function SessionDetail() {
     if (isNaN(amount) || amount < 0) return;
 
     try {
-      const entryRef = doc(db, 'sessions', id, 'staff_entries', staffEntryId);
-      await updateDoc(entryRef, {
-        payoutAmount: amount,
-        method: method
-      });
+      const { error: entryError } = await supabase
+        .from('staff_session_entries')
+        .update({
+          payoutAmount: amount,
+          method: method
+        })
+        .eq('id', staffEntryId);
+
+      if (entryError) throw entryError;
 
       // Update session total payout
-      const sessionRef = doc(db, 'sessions', id);
       const playerPayouts = entries.reduce((acc, e) => acc + (e.totalPayout || 0), 0);
       const staffPayoutsTotal = staffEntries.reduce((acc, e) => {
         if (e.id === staffEntryId) return acc + amount;
         return acc + (e.payoutAmount || 0);
       }, 0);
       
-      await updateDoc(sessionRef, {
-        totalPayout: playerPayouts + staffPayoutsTotal
-      });
+      const { error: sessionError } = await supabase
+        .from('sessions')
+        .update({
+          totalPayout: playerPayouts + staffPayoutsTotal
+        })
+        .eq('id', id);
+
+      if (sessionError) throw sessionError;
 
       setStaffPayoutAmount('');
       setSelectedStaffEntryId(null);
     } catch (error) {
-       handleFirestoreError(error, 'update', `sessions/${id}/staff_entries/${staffEntryId}`);
+       console.error("Payout staff failed:", error);
     }
   };
+
   useEffect(() => {
     if (!session || !id) return;
     const playerPayouts = entries.reduce((acc, e) => acc + (e.totalPayout || 0), 0);
@@ -355,27 +400,33 @@ export function SessionDetail() {
     const total = playerPayouts + staffPayoutsTotal;
     
     if (total !== session.totalPayout) {
-      const sessionRef = doc(db, 'sessions', id);
-      updateDoc(sessionRef, { totalPayout: total }).catch(console.error);
+      supabase.from('sessions').update({ totalPayout: total }).eq('id', id).then(({ error }) => {
+        if (error) console.error("Sync total payout failed:", error);
+      });
     }
   }, [entries, staffEntries, id, session]);
 
   const updateSessionMetadata = async () => {
     if (!session || !editDate || !editLocationId) return;
     try {
-      await updateDoc(doc(db, 'sessions', session.id), {
-        date: Timestamp.fromDate(new Date(editDate)),
-        locationId: editLocationId
-      });
+      const { error } = await supabase
+        .from('sessions')
+        .update({
+          date: new Date(editDate).toISOString(),
+          locationId: editLocationId
+        })
+        .eq('id', session.id);
+
+      if (error) throw error;
       setIsEditingMetadata(false);
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${session.id}`);
+      console.error("Update session metadata failed:", error);
     }
   };
 
   const startEditMetadata = () => {
     if (!session) return;
-    setEditDate(format(session.date.toDate(), "yyyy-MM-dd'T'HH:mm"));
+    setEditDate(format(parseISO(session.date), "yyyy-MM-dd'T'HH:mm"));
     setEditLocationId(session.locationId);
     setIsEditingMetadata(true);
   };
@@ -383,10 +434,14 @@ export function SessionDetail() {
   const closeSession = async () => {
     if (!session || !id) return;
     try {
-      const sessionRef = doc(db, 'sessions', id);
-      await updateDoc(sessionRef, { status: 'completed' });
+      const { error } = await supabase
+        .from('sessions')
+        .update({ status: 'completed' })
+        .eq('id', id);
+
+      if (error) throw error;
     } catch (error) {
-      handleFirestoreError(error, 'update', `sessions/${id}`);
+      console.error("Close session failed:", error);
     }
   };
 
@@ -395,22 +450,16 @@ export function SessionDetail() {
 
     setIsDeleting(true);
     try {
-      const batch = writeBatch(db);
-      
-      const entriesSnapshot = await getDocs(collection(db, 'sessions', id, 'entries'));
-      entriesSnapshot.forEach((doc) => batch.delete(doc.ref));
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('id', id);
 
-      const staffEntriesSnapshot = await getDocs(collection(db, 'sessions', id, 'staff_entries'));
-      staffEntriesSnapshot.forEach((doc) => batch.delete(doc.ref));
-
-      batch.delete(doc(db, 'sessions', id));
-
-      await batch.commit();
+      if (error) throw error;
       navigate('/');
     } catch (error) {
       console.error("Delete failed:", error);
       setIsDeleting(false);
-      handleFirestoreError(error, 'delete', `sessions/${id}`);
     }
   };
 
@@ -499,7 +548,7 @@ export function SessionDetail() {
           <div className="md:col-span-12 lg:col-span-4">
             <div className="flex items-center gap-4 mb-3">
               <h1 className="text-4xl font-black uppercase tracking-tight text-slate-900">
-                {format(session.date.toDate(), 'MMM d, yyyy')}
+                {format(parseISO(session.date), 'MMM d, yyyy')}
               </h1>
               {session.status === 'active' && (
                 <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[8px] font-black uppercase tracking-widest border border-emerald-200 rounded-full">

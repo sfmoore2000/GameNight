@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, Timestamp, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { Player } from '../types';
-import { Plus, User, Mail, Shield, Check, X, Edit2 } from 'lucide-react';
+import { Plus, User, Mail, Shield, Edit2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -14,34 +13,55 @@ export function PlayersPage() {
   const [newEmail, setNewEmail] = useState('');
 
   useEffect(() => {
-    const q = query(collection(db, 'players'), orderBy('name', 'asc'));
-    return onSnapshot(q, (snapshot) => {
-      setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Player)));
-    });
+    async function fetchPlayers() {
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .order('name', { ascending: true });
+      if (data) setPlayers(data as Player[]);
+    }
+
+    fetchPlayers();
+
+    const subscription = supabase
+      .channel('players-channel')
+      .on('postgres_changes', { event: '*', table: 'players', schema: 'public' }, () => fetchPlayers())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const savePlayer = async () => {
     if (!newName) return;
     try {
       if (editingPlayer) {
-        await updateDoc(doc(db, 'players', editingPlayer.id), {
-          name: newName,
-          email: newEmail,
-        });
+        const { error } = await supabase
+          .from('players')
+          .update({
+            name: newName,
+            email: newEmail,
+          })
+          .eq('id', editingPlayer.id);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'players'), {
-          name: newName,
-          email: newEmail,
-          active: true,
-          createdAt: serverTimestamp()
-        });
+        const { error } = await supabase
+          .from('players')
+          .insert([{
+            name: newName,
+            email: newEmail,
+            active: true,
+            createdAt: new Date().toISOString()
+          }]);
+        if (error) throw error;
       }
       setNewName('');
       setNewEmail('');
       setIsAdding(false);
       setEditingPlayer(null);
     } catch (error) {
-      handleFirestoreError(error, editingPlayer ? 'update' : 'create', editingPlayer ? `players/${editingPlayer.id}` : 'players');
+      console.error("Save player failed:", error);
     }
   };
 
@@ -54,11 +74,15 @@ export function PlayersPage() {
 
   const togglePlayerStatus = async (player: Player) => {
     try {
-      await updateDoc(doc(db, 'players', player.id), {
-        active: !player.active
-      });
+      const { error } = await supabase
+        .from('players')
+        .update({
+          active: !player.active
+        })
+        .eq('id', player.id);
+      if (error) throw error;
     } catch (error) {
-      handleFirestoreError(error, 'update', `players/${player.id}`);
+      console.error("Toggle status failed:", error);
     }
   };
 
