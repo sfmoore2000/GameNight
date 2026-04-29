@@ -93,6 +93,14 @@ export function Dashboard() {
 
       setSessionToDelete(null);
       setDeleteConfirmationInput('');
+      
+      // Explicitly refresh data after delete to ensure immediate UI update
+      const { data: sessionsData } = await supabase
+        .from('sessions')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(10);
+      if (sessionsData) setSessions(sessionsData as Session[]);
     } catch (error) {
       console.error("Delete failed:", error);
     } finally {

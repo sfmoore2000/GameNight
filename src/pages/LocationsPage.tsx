@@ -56,6 +56,14 @@ export function LocationsPage() {
           }]);
         if (error) throw error;
       }
+
+      // Refresh local state
+      const { data: locationsData } = await supabase
+        .from('locations')
+        .select('*')
+        .order('name', { ascending: true });
+      if (locationsData) setLocations(locationsData as Location[]);
+
       setNewName('');
       setNewAddress('');
       setIsAdding(false);
@@ -81,6 +89,13 @@ export function LocationsPage() {
         })
         .eq('id', location.id);
       if (error) throw error;
+
+      // Refresh local state
+      const { data: locationsData } = await supabase
+        .from('locations')
+        .select('*')
+        .order('name', { ascending: true });
+      if (locationsData) setLocations(locationsData as Location[]);
     } catch (error) {
       console.error("Toggle status failed:", error);
     }

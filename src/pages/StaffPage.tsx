@@ -53,6 +53,14 @@ export function StaffPage() {
           }]);
         if (error) throw error;
       }
+
+      // Refresh local state
+      const { data: staffData } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name', { ascending: true });
+      if (staffData) setStaff(staffData as Staff[]);
+
       setNewName('');
       setIsAdding(false);
       setEditingStaff(null);
@@ -76,6 +84,13 @@ export function StaffPage() {
         })
         .eq('id', s.id);
       if (error) throw error;
+
+      // Refresh local state
+      const { data: staffData } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name', { ascending: true });
+      if (staffData) setStaff(staffData as Staff[]);
     } catch (error) {
       console.error("Toggle status failed:", error);
     }

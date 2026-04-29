@@ -56,6 +56,14 @@ export function PlayersPage() {
           }]);
         if (error) throw error;
       }
+
+      // Refresh local state
+      const { data: playersData } = await supabase
+        .from('players')
+        .select('*')
+        .order('name', { ascending: true });
+      if (playersData) setPlayers(playersData as Player[]);
+
       setNewName('');
       setNewEmail('');
       setIsAdding(false);
@@ -81,6 +89,13 @@ export function PlayersPage() {
         })
         .eq('id', player.id);
       if (error) throw error;
+
+      // Refresh local state
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .order('name', { ascending: true });
+      if (data) setPlayers(data as Player[]);
     } catch (error) {
       console.error("Toggle status failed:", error);
     }
