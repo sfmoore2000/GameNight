@@ -42,39 +42,98 @@ export function SessionDetail() {
     if (!id) return;
 
     async function fetchData() {
-      const [{ data: sessionData }, { data: entriesData }, { data: staffEntriesData }, { data: playersData }, { data: staffData }, { data: locationsData }] = await Promise.all([
-        supabase.from('sessions').select('*').eq('id', id).single(),
-        supabase.from('player_session_entries').select('*').eq('sessionId', id),
-        supabase.from('staff_session_entries').select('*').eq('sessionId', id),
-        supabase.from('players').select('*').order('name', { ascending: true }),
-        supabase.from('staff').select('*').order('name', { ascending: true }),
-        supabase.from('locations').select('*').order('name', { ascending: true })
-      ]);
+      try {
+        const [
+          { data: sessionData, error: sessionError },
+          { data: entriesData, error: entriesError },
+          { data: staffEntriesData, error: staffEntriesError },
+          { data: playersData, error: playersDataError },
+          { data: staffData, error: staffDataError },
+          { data: locationsData, error: locationsDataError }
+        ] = await Promise.all([
+          supabase.from('sessions').select('*').eq('id', id).single(),
+          supabase.from('player_session_entries').select('*').eq('sessionId', id),
+          supabase.from('staff_session_entries').select('*').eq('sessionId', id),
+          supabase.from('players').select('*').order('name', { ascending: true }),
+          supabase.from('staff').select('*').order('name', { ascending: true }),
+          supabase.from('locations').select('*').order('name', { ascending: true })
+        ]);
 
-      if (sessionData) setSession(sessionData as Session);
-      else navigate('/');
+        if (sessionError) throw sessionError;
+        if (sessionData) setSession(sessionData as Session);
+        else {
+          console.warn("Session not found:", id);
+          navigate('/');
+          return;
+        }
 
-      if (entriesData) setEntries(entriesData as PlayerSessionEntry[]);
-      if (staffEntriesData) setStaffEntries(staffEntriesData as StaffSessionEntry[]);
-      if (playersData) setAvailablePlayers(playersData as Player[]);
-      if (staffData) setAllStaff(staffData as Staff[]);
-      if (locationsData) setLocations(locationsData as Location[]);
-      setLoading(false);
+        if (entriesError) console.error("Error fetching entries:", entriesError);
+        else if (entriesData) setEntries(entriesData as PlayerSessionEntry[]);
+
+        if (staffEntriesError) console.error("Error fetching staff entries:", staffEntriesError);
+        else if (staffEntriesData) setStaffEntries(staffEntriesData as StaffSessionEntry[]);
+
+        if (playersDataError) console.error("Error fetching players:", playersDataError);
+        else if (playersData) setAvailablePlayers(playersData as Player[]);
+
+        if (staffDataError) console.error("Error fetching staff:", staffDataError);
+        else if (staffData) setAllStaff(staffData as Staff[]);
+
+        if (locationsDataError) console.error("Error fetching locations:", locationsDataError);
+        else if (locationsData) setLocations(locationsData as Location[]);
+
+      } catch (error) {
+        console.error("fetchData failed:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchData();
 
+    // Export fetchData to window for manual mutation triggers if needed, 
+    // or just let the mutation functions call a local copy.
+    // For simplicity, we'll keep it local and call it after mutations.
+
     // Set up real-time subscriptions
     const channel = supabase.channel(`session-${id}`)
-      .on('postgres_changes', { event: '*', table: 'sessions', schema: 'public', filter: `id=eq.${id}` }, () => fetchData())
-      .on('postgres_changes', { event: '*', table: 'player_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, () => fetchData())
-      .on('postgres_changes', { event: '*', table: 'staff_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, () => fetchData())
-      .subscribe();
+      .on('postgres_changes', { event: '*', table: 'sessions', schema: 'public', filter: `id=eq.${id}` }, (payload) => {
+        console.log('Real-time session update:', payload);
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', table: 'player_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, (payload) => {
+        console.log('Real-time player entry update:', payload);
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', table: 'staff_session_entries', schema: 'public', filter: `sessionId=eq.${id}` }, (payload) => {
+        console.log('Real-time staff entry update:', payload);
+        fetchData();
+      })
+      .subscribe((status) => {
+        console.log(`Supabase Realtime subscription status [session-${id}]:`, status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [id, navigate]);
+
+  // Helper for manual data refresh after mutations
+  const refreshData = async () => {
+    if (!id) return;
+    try {
+      const [{ data: sessionData }, { data: entriesData }, { data: staffEntriesData }] = await Promise.all([
+        supabase.from('sessions').select('*').eq('id', id).single(),
+        supabase.from('player_session_entries').select('*').eq('sessionId', id),
+        supabase.from('staff_session_entries').select('*').eq('sessionId', id)
+      ]);
+      if (sessionData) setSession(sessionData as Session);
+      if (entriesData) setEntries(entriesData as PlayerSessionEntry[]);
+      if (staffEntriesData) setStaffEntries(staffEntriesData as StaffSessionEntry[]);
+    } catch (err) {
+      console.error("Manual refresh failed:", err);
+    }
+  };
 
   const addPlayerToSession = async () => {
     if (!session || !id || !selectedPlayerForAdd) return;
@@ -114,6 +173,7 @@ export function SessionDetail() {
         if (sessionError) throw sessionError;
       }
 
+      await refreshData();
       setIsAddingPlayer(false);
       setSelectedPlayerForAdd(null);
       setInitialBuyIn('');
@@ -157,6 +217,7 @@ export function SessionDetail() {
 
       if (sessionError) throw sessionError;
 
+      await refreshData();
       setBuyInAmount('');
     } catch (error) {
        console.error("Add buy-in failed:", error);
@@ -195,6 +256,7 @@ export function SessionDetail() {
         .eq('id', id);
       
       if (sessionError) throw sessionError;
+      await refreshData();
     } catch (error) {
       console.error("Remove buy-in failed:", error);
     }
@@ -224,6 +286,7 @@ export function SessionDetail() {
         .eq('id', entryId);
 
       if (error) throw error;
+      await refreshData();
 
       if (amountOverride === undefined) {
         setCashOutAmount('');
@@ -253,6 +316,7 @@ export function SessionDetail() {
         .eq('id', entryId);
 
       if (error) throw error;
+      await refreshData();
     } catch (error) {
        console.error("Remove payout failed:", error);
     }
@@ -280,6 +344,7 @@ export function SessionDetail() {
         .eq('id', entryId);
 
       if (error) throw error;
+      await refreshData();
 
       setSettlementAmount('');
     } catch (error) {
@@ -306,6 +371,7 @@ export function SessionDetail() {
         .eq('id', entryId);
 
       if (error) throw error;
+      await refreshData();
     } catch (error) {
        console.error("Remove settlement failed:", error);
     }
@@ -325,6 +391,7 @@ export function SessionDetail() {
         .eq('id', entryId);
 
       if (error) throw error;
+      await refreshData();
     } catch (error) {
       console.error("Toggle status failed:", error);
     }
@@ -348,6 +415,7 @@ export function SessionDetail() {
         .insert([entry]);
 
       if (error) throw error;
+      await refreshData();
       setIsAddingStaff(false);
     } catch (error) {
       console.error("Add staff failed:", error);
@@ -386,6 +454,7 @@ export function SessionDetail() {
 
       if (sessionError) throw sessionError;
 
+      await refreshData();
       setStaffPayoutAmount('');
       setSelectedStaffEntryId(null);
     } catch (error) {
@@ -418,6 +487,7 @@ export function SessionDetail() {
         .eq('id', session.id);
 
       if (error) throw error;
+      await refreshData();
       setIsEditingMetadata(false);
     } catch (error) {
       console.error("Update session metadata failed:", error);
@@ -440,6 +510,7 @@ export function SessionDetail() {
         .eq('id', id);
 
       if (error) throw error;
+      await refreshData();
     } catch (error) {
       console.error("Close session failed:", error);
     }
