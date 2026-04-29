@@ -12,6 +12,7 @@ import { SessionDetail } from './pages/SessionDetail';
 import { PlayersPage } from './pages/PlayersPage';
 import { LocationsPage } from './pages/LocationsPage';
 import { StaffPage } from './pages/StaffPage';
+import { PlayerStats } from './pages/PlayerStats';
 import { LogIn, Loader2, Club, ShieldAlert, ExternalLink, Settings } from 'lucide-react';
 
 export default function App() {
@@ -157,6 +158,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/sessions/:id" element={<SessionDetail />} />
           <Route path="/players" element={<PlayersPage />} />
+          <Route path="/stats" element={<PlayerStats />} />
           <Route path="/locations" element={<LocationsPage />} />
           <Route path="/staff" element={<StaffPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,6 +1,6 @@
 import { User } from 'firebase/auth';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, MapPin, Sparkles, LogOut, Menu, X, Club } from 'lucide-react';
+import { Home, Users, MapPin, Sparkles, LogOut, Menu, X, Club, BarChart3 } from 'lucide-react';
 import { useState, ReactNode } from 'react';
 import { cn } from '../lib/utils';
 
@@ -17,6 +17,7 @@ export function Layout({ children, user, onLogout }: LayoutProps) {
   const navItems = [
     { href: '/', label: 'Dashboard', icon: Home },
     { href: '/players', label: 'Players', icon: Users },
+    { href: '/stats', label: 'Statistics', icon: BarChart3 },
     { href: '/locations', label: 'Locations', icon: MapPin },
     { href: '/staff', label: 'Staff', icon: Sparkles },
   ];
