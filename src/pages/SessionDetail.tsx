@@ -522,6 +522,33 @@ export function SessionDetail() {
     }
   };
 
+  const removePlayerEntry = async (entryId: string) => {
+    if (!window.confirm('CRITICAL: Remove this player and all their financial records from this session?')) return;
+    try {
+      const entry = entries.find(e => e.id === entryId);
+      if (!entry) return;
+
+      const { error } = await supabase
+        .from('player_session_entries')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) throw error;
+
+      // Update session total buy-in
+      if (entry.totalBuyIn > 0) {
+        await supabase
+          .from('sessions')
+          .update({ totalBuyIn: (session?.totalBuyIn || 0) - entry.totalBuyIn })
+          .eq('id', id);
+      }
+
+      await refreshData();
+    } catch (error) {
+      console.error("Remove player entry failed:", error);
+    }
+  };
+
   const addStaffToSession = async (staff: Staff) => {
     if (!id) return;
     try {
@@ -781,9 +808,12 @@ export function SessionDetail() {
                     </td>
                     <td className="px-3 py-2 text-right">
                       <p className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
-                      {entry.buyIns.some(b => b.method === 'credit') && (
-                        <span className="text-[6px] font-mono text-rose-500 uppercase tracking-widest font-bold">Credit</span>
-                      )}
+                      <div className="flex flex-col items-end">
+                        <span className="text-[6px] font-mono text-slate-400 uppercase tracking-widest font-bold leading-none">Entries: {entry.buyIns.length}</span>
+                        {entry.buyIns.some(b => b.method === 'credit') && (
+                          <span className="text-[6px] font-mono text-rose-500 uppercase tracking-widest font-bold">Credit</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2 text-right">
                       <p className="text-[11px] font-black text-slate-900">{entry.totalPayout > 0 ? formatCurrency(entry.totalPayout) : '—'}</p>
@@ -822,6 +852,13 @@ export function SessionDetail() {
                         >
                            Out
                         </button>
+                        <button 
+                           onClick={() => removePlayerEntry(entry.id)}
+                           disabled={session.status === 'completed'}
+                           className="p-1 px-1.5 text-slate-200 hover:text-rose-500 hover:bg-rose-50 rounded transition-all disabled:opacity-0"
+                        >
+                           <Trash2 size={12} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -857,9 +894,9 @@ export function SessionDetail() {
                   </div>
                   <button 
                     onClick={() => removeStaffPayout(entry.id)}
-                    className="p-1 text-slate-200 hover:text-rose-500 group-hover:block hidden transition-all"
+                    className="p-1 text-slate-200 hover:text-rose-500 transition-all font-black"
                   >
-                    <Trash2 size={10} />
+                    <Trash2 size={12} />
                   </button>
                 </div>
                 <div 
@@ -1005,21 +1042,23 @@ export function SessionDetail() {
                       <span className="text-[7px] font-mono text-slate-300 uppercase tracking-widest block mb-1">Buy-In History</span>
                       {selectedEntry?.buyIns.map((bi, i) => (
                         <div key={i} className="flex justify-between items-center py-1 border-b border-brand-border border-dashed last:border-0 group/bi">
-                          <div className="flex items-center gap-2">
-                            <Trash2 
-                              size={10} 
-                              className="opacity-0 group-hover/bi:opacity-100 cursor-pointer text-rose-300 hover:text-rose-500 transition-all"
-                              onClick={() => removeBuyIn(selectedEntryId!, i)}
-                            />
-                            <Edit3
-                              size={10}
-                              className="opacity-0 group-hover/bi:opacity-100 cursor-pointer text-blue-300 hover:text-blue-500 transition-all"
-                              onClick={() => {
-                                setEditingIndex(i);
-                                setIsEditingRecord(true);
-                                setBuyInAmount(bi.amount.toString());
-                              }}
-                            />
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <Trash2 
+                                size={10} 
+                                className="cursor-pointer text-rose-300 hover:text-rose-500 transition-all"
+                                onClick={() => removeBuyIn(selectedEntryId!, i)}
+                              />
+                              <Edit3
+                                size={10}
+                                className="cursor-pointer text-blue-300 hover:text-blue-500 transition-all"
+                                onClick={() => {
+                                  setEditingIndex(i);
+                                  setIsEditingRecord(true);
+                                  setBuyInAmount(bi.amount.toString());
+                                }}
+                              />
+                            </div>
                             <span className={cn("text-[9px] font-black uppercase", bi.method === 'credit' ? "text-rose-500" : "text-slate-500")}>
                                {PAYMENT_METHODS.find(m => m.id === bi.method)?.label}
                             </span>
