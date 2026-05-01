@@ -600,7 +600,7 @@ export function SessionDetail() {
   }, {} as Record<string, number>) : {};
 
   return (
-    <div className="p-8 md:p-12 lg:p-16 max-w-7xl mx-auto space-y-12">
+    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-8 md:space-y-12">
       {/* Top Navigation */}
       <button 
         onClick={() => navigate('/')} 
@@ -610,7 +610,7 @@ export function SessionDetail() {
       </button>
 
       {/* Modern Session Header */}
-      <div className="bg-white border border-brand-border rounded-3xl p-10 modern-shadow overflow-hidden relative">
+      <div className="bg-white border border-brand-border rounded-3xl p-6 md:p-10 modern-shadow overflow-hidden relative">
         <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
           <DollarSign size={200} className="text-slate-900" />
         </div>
@@ -714,8 +714,8 @@ export function SessionDetail() {
              <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest">Active Seats: {entries.filter(e => e.status === 'playing').length} / {entries.length}</span>
           </div>
 
-          <div className="bg-white border border-brand-border rounded-2xl overflow-hidden modern-shadow">
-            <table className="w-full border-collapse">
+          <div className="bg-white border border-brand-border rounded-2xl overflow-x-auto modern-shadow">
+            <table className="w-full border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-brand-border">
                   <th className="px-6 py-4 text-left font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Member</th>
@@ -852,7 +852,7 @@ export function SessionDetail() {
             <motion.div 
                initial={{ scale: 0.95, opacity: 0, y: 20 }} 
                animate={{ scale: 1, opacity: 1, y: 0 }} 
-               className="relative bg-white p-10 md:p-14 max-w-2xl w-full rounded-[2.5rem] modern-shadow-lg overflow-hidden"
+               className="relative bg-white p-6 md:p-10 lg:p-14 max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-[2.5rem] modern-shadow-lg"
             >
               {/* Modal Mode Selector */}
               <div className="flex gap-1 mb-8 p-1 bg-slate-50 rounded-xl border border-brand-border w-fit">
@@ -1207,7 +1207,7 @@ export function SessionDetail() {
             <motion.div 
                initial={{ scale: 0.95, opacity: 0, y: 20 }} 
                animate={{ scale: 1, opacity: 1, y: 0 }} 
-               className="relative bg-white p-10 md:p-14 max-w-md w-full rounded-[2.5rem] modern-shadow-lg"
+               className="relative bg-white p-8 md:p-14 max-w-md w-full max-h-[90vh] overflow-y-auto rounded-[2.5rem] modern-shadow-lg"
             >
               <div className="space-y-8">
                 <div>
@@ -1360,7 +1360,7 @@ export function SessionDetail() {
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
-              className="relative bg-white p-10 md:p-14 max-w-2xl w-full rounded-[3rem] modern-shadow-xl overflow-hidden"
+              className="relative bg-white p-6 md:p-10 lg:p-14 max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-[3rem] modern-shadow-xl"
             >
               <div className="space-y-8">
                 <div>
