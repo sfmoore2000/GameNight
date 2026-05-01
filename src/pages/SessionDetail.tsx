@@ -636,6 +636,20 @@ export function SessionDetail() {
     }
   };
 
+  const completeSession = async () => {
+    if (!id || !window.confirm('Are you sure you want to complete this session? This will lock most editing actions.')) return;
+    try {
+      const { error } = await supabase
+        .from('sessions')
+        .update({ status: 'completed' })
+        .eq('id', id);
+      if (error) throw error;
+      await refreshData();
+    } catch (error) {
+      console.error("Complete session failed:", error);
+    }
+  };
+
   const sessionStats = useMemo(() => {
     const totalBuyIn = entries.reduce((acc, entry) => acc + entry.totalBuyIn, 0);
     const totalPayout = entries.reduce((acc, entry) => acc + entry.totalPayout, 0);
@@ -646,6 +660,7 @@ export function SessionDetail() {
     
     const realizedCash = totalBuyIn - totalCredit + totalSettled;
     const hostBalance = realizedCash - totalPayout - totalStaffPayout;
+    const totalPlayers = entries.length;
 
     return {
       totalBuyIn,
@@ -655,7 +670,8 @@ export function SessionDetail() {
       totalSettled,
       outstandingCredit: totalCredit - totalSettled,
       realizedCash,
-      hostBalance
+      hostBalance,
+      totalPlayers
     };
   }, [entries, staffEntries]);
 
@@ -690,6 +706,15 @@ export function SessionDetail() {
           <ArrowLeft size={24} />
         </button>
         <div className="flex gap-2">
+          {session.status === 'active' && (
+            <button 
+              onClick={completeSession}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center gap-2 modern-shadow"
+            >
+              <CheckCircle2 size={14} />
+              End Session
+            </button>
+          )}
           <button 
             onClick={() => setIsEditingMetadata(true)}
             className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 modern-shadow"
@@ -756,11 +781,15 @@ export function SessionDetail() {
             <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
               <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">Balance</span>
               <p className={cn(
-                "text-base font-black",
+                "text-base font-black font-sans leading-tight",
                 sessionStats.hostBalance < 0 ? "text-rose-500" : "text-emerald-600"
               )}>
                 {formatCurrency(sessionStats.hostBalance)}
               </p>
+            </div>
+            <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
+              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">Total Players</span>
+              <p className="text-base font-black text-slate-900">{sessionStats.totalPlayers}</p>
             </div>
           </div>
         </div>
