@@ -109,129 +109,123 @@ export function Dashboard() {
   };
 
   return (
-    <div className="p-8 md:p-12 lg:p-16 max-w-7xl mx-auto space-y-12">
+    <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto space-y-8">
       {/* Modern Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-2">
             <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest rounded leading-none">System Active</span>
-            <h1 className="text-4xl font-black uppercase tracking-tight text-slate-900">Dashboard</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tight text-slate-900">Dashboard</h1>
           </div>
-          <p className="text-slate-500 font-medium text-sm border-l-2 border-emerald-500 pl-4">
-            Unified operations control for active and historical poker sessions.
+          <p className="text-slate-500 font-medium text-sm border-l-2 border-emerald-500 pl-4 opacity-80">
+            Unified operations control for poker session deployments.
           </p>
         </div>
         
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-col items-end gap-2">
           <button 
             onClick={() => setIsCreating(true)}
-            className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
+            className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             New Session
-          </button>
-          <button 
-            onClick={() => import('../lib/seed').then(m => m.seedDatabase())}
-            className="px-4 py-1 text-[9px] font-mono uppercase tracking-widest text-slate-300 hover:text-slate-600 transition-all"
-          >
-            Reset Sample Environment
           </button>
         </div>
       </div>
 
       {/* High-Density Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white border border-brand-border p-8 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-4 mb-4">
-             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><Activity size={20} /></div>
-             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Live Circuits</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-3">
+             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><Activity size={16} /></div>
+             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Live Circuits</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-black text-slate-900">{sessions.filter(s => s.status === 'active').length}</p>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Active Now</span>
+            <p className="text-3xl font-black text-slate-900">{sessions.filter(s => s.status === 'active').length}</p>
+            <span className="text-[9px] text-slate-400 font-bold uppercase">Active Now</span>
           </div>
         </div>
 
-        <div className="bg-white border border-brand-border p-8 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-4 mb-4">
-             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><DollarSign size={20} /></div>
-             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Market Volume</span>
+        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-3">
+             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><DollarSign size={16} /></div>
+             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Market Volume</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-black text-slate-900">{formatCurrency(sessions.reduce((acc, s) => acc + (s.totalBuyIn || 0), 0))}</p>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Gross</span>
+            <p className="text-3xl font-black text-slate-900">{formatCurrency(sessions.reduce((acc, s) => acc + (s.totalBuyIn || 0), 0))}</p>
+            <span className="text-[9px] text-slate-400 font-bold uppercase">Gross</span>
           </div>
         </div>
 
-        <div className="bg-white border border-brand-border p-8 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-4 mb-4">
-             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><ChevronRight size={20} /></div>
-             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Capital Velocity</span>
+        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-3">
+             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><ChevronRight size={16} /></div>
+             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Capital Velocity</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-black text-slate-900 text-emerald-600">
+            <p className="text-3xl font-black text-slate-900 text-emerald-600">
               {formatCurrency(sessions.length ? sessions.reduce((acc, s) => acc + (s.totalPayout || 0), 0) / sessions.length : 0)}
             </p>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Avg Net</span>
+            <span className="text-[9px] text-slate-400 font-bold uppercase">Avg Net</span>
           </div>
         </div>
       </div>
 
       {/* Grid List View */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-center border-b border-brand-border pb-4">
-          <h2 className="text-[11px] uppercase font-black tracking-widest text-slate-400">Archived Deployment Journal</h2>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b border-brand-border pb-3">
+          <h2 className="text-[10px] uppercase font-black tracking-widest text-slate-400">Deployment Journal</h2>
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Real-time Feed Enabled</span>
+            <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">Feed Active</span>
           </div>
         </div>
         
         {sessions.length === 0 ? (
-          <div className="py-24 text-center border-2 border-dashed border-brand-border rounded-2xl bg-slate-50/50">
-            <p className="text-slate-400 font-medium mb-6 uppercase tracking-widest text-xs">No Deployment Logs Found</p>
+          <div className="py-16 text-center border-2 border-dashed border-brand-border rounded-xl bg-slate-50/50">
+            <p className="text-slate-400 font-medium mb-4 uppercase tracking-widest text-[10px]">No Logs Found</p>
             <button 
               onClick={() => import('../lib/seed').then(m => m.seedDatabase())}
-              className="px-12 py-4 bg-white border border-brand-border text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest modern-shadow hover:bg-slate-900 hover:text-white transition-all"
+              className="px-8 py-3 bg-white border border-brand-border text-slate-900 rounded-lg text-xs font-black uppercase tracking-widest modern-shadow hover:bg-slate-900 hover:text-white transition-all"
             >
               Seed Environment
             </button>
           </div>
         ) : (
-          <div className="bg-white border border-brand-border rounded-2xl overflow-hidden modern-shadow">
+          <div className="bg-white border border-brand-border rounded-xl overflow-hidden modern-shadow">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-brand-border">
-                  <th className="px-8 py-5 font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold">Deployment ID</th>
-                  <th className="px-8 py-5 font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold">Venue</th>
-                  <th className="px-8 py-5 font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold">Financial Pool</th>
-                  <th className="px-8 py-5 font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold text-center">Security Status</th>
-                  <th className="px-8 py-5 font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold text-right">Operations</th>
+                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Deployment ID</th>
+                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Venue</th>
+                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Financial Pool</th>
+                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold text-center">Status</th>
+                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold text-right">Operations</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border">
                 {sessions.map((session) => (
                   <tr key={session.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-900">{format(parseISO(session.date), 'MMM d, yyyy')}</span>
-                        <span className="font-mono text-[8px] text-slate-300 uppercase mt-0.5 tracking-tighter">#{session.id.slice(0, 12)}</span>
+                        <span className="text-xs font-bold text-slate-900">{format(parseISO(session.date), 'MMM d, yyyy')}</span>
+                        <span className="font-mono text-[7px] text-slate-300 uppercase mt-0.5 tracking-tighter">#{session.id.slice(0, 8)}</span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <MapPin size={14} className="text-slate-300" />
-                        <span className="text-xs font-semibold text-slate-600">
-                          {locations.find(l => l.id === session.locationId)?.name || 'Restricted Hub'}
+                        <MapPin size={12} className="text-slate-300" />
+                        <span className="text-[11px] font-semibold text-slate-600">
+                          {locations.find(l => l.id === session.locationId)?.name || 'Restricted HUB'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</span>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</span>
                     </td>
-                    <td className="px-8 py-6 text-center">
+                    <td className="px-6 py-4 text-center">
                       <span className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ring-1 ring-inset",
+                        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ring-1 ring-inset",
                         session.status === 'active' 
                           ? "bg-emerald-50 text-emerald-700 ring-emerald-200" 
                           : "bg-slate-100 text-slate-500 ring-slate-200"
@@ -240,8 +234,8 @@ export function Dashboard() {
                         {session.status}
                       </span>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center justify-end gap-3">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={(e) => { 
                             e.preventDefault(); 
@@ -249,16 +243,16 @@ export function Dashboard() {
                             setSessionToDelete(session);
                             setDeleteConfirmationInput('');
                           }}
-                          className="p-2 text-slate-300 hover:text-rose-600 transition-all group-hover:text-slate-400"
+                          className="p-1.5 text-slate-200 hover:text-rose-600 transition-all group-hover:text-slate-300"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                         <Link
                           to={`/sessions/${session.id}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="px-6 py-2.5 bg-white border border-brand-border text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all modern-shadow"
+                          className="px-4 py-2 bg-white border border-brand-border text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all modern-shadow"
                         >
-                          Audit Log
+                          Audit
                         </Link>
                       </div>
                     </td>

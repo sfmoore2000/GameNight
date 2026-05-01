@@ -24,56 +24,56 @@ export function Layout({ children, user, onLogout }: LayoutProps) {
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row font-sans">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-72 bg-brand-sidebar border-r border-brand-border flex-col p-8 sticky top-0 h-screen">
-        <div className="mb-12 flex items-center gap-3">
-          <div className="bg-emerald-600 p-2 rounded-lg modern-shadow text-white">
-            <Club size={24} fill="currentColor" />
+      <aside className="hidden md:flex w-64 bg-brand-sidebar border-r border-brand-border flex-col p-5 sticky top-0 h-screen">
+        <div className="mb-8 flex items-center gap-2">
+          <div className="bg-emerald-600 p-1.5 rounded-lg modern-shadow text-white">
+            <Club size={20} fill="currentColor" />
           </div>
           <div>
-            <h1 className="text-xl font-black uppercase tracking-tight leading-none text-brand-text">Game Night</h1>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 font-bold mt-1">Management Hub</p>
+            <h1 className="text-lg font-black uppercase tracking-tight leading-none text-brand-text">Game Night</h1>
+            <p className="text-[9px] font-mono uppercase tracking-widest text-emerald-600 font-bold mt-0.5">Management Hub</p>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1">
-          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 block mb-4 mt-8">Primary Navigation</span>
+        <nav className="flex-1 space-y-0.5">
+          <span className="text-[8px] font-mono uppercase tracking-[0.2em] text-slate-400 block mb-3 mt-4 px-2">Primary Navigation</span>
           {navItems.map((item) => (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-sans text-xs uppercase tracking-widest font-bold",
+                "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all font-sans text-[10px] uppercase tracking-widest font-bold",
                 location.pathname === item.href
                   ? "bg-white border border-brand-border text-brand-text modern-shadow"
                   : "text-slate-400 hover:text-brand-text hover:bg-slate-100/50"
               )}
             >
-              <item.icon size={16} className={cn(location.pathname === item.href ? "text-emerald-600" : "text-slate-300")} />
+              <item.icon size={14} className={cn(location.pathname === item.href ? "text-emerald-600" : "text-slate-300")} />
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="mt-auto pt-8 border-t border-brand-border">
-          <div className="flex items-center gap-3 mb-6 p-2 rounded-xl bg-white border border-brand-border/50 modern-shadow overflow-hidden">
+        <div className="mt-auto pt-5 border-t border-brand-border">
+          <div className="flex items-center gap-2.5 mb-4 p-2 rounded-xl bg-white border border-brand-border/50 modern-shadow overflow-hidden">
             <img 
               src={user.user_metadata?.avatar_url || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.displayName || 'User')}&background=random`} 
               referrerPolicy="no-referrer"
               alt="" 
-              className="w-10 h-10 rounded-lg border border-brand-border shadow-sm shrink-0 object-cover" 
+              className="w-8 h-8 rounded-lg border border-brand-border shadow-sm shrink-0 object-cover" 
             />
             <div className="overflow-hidden">
-              <p className="text-[10px] font-black uppercase tracking-tight truncate">
+              <p className="text-[9px] font-black uppercase tracking-tight truncate leading-tight">
                 {user.user_metadata?.full_name || user.displayName || 'User'}
               </p>
-              <p className="text-[9px] font-mono text-slate-400 truncate">{user.email}</p>
+              <p className="text-[8px] font-mono text-slate-400 truncate mt-0.5">{user.email}</p>
             </div>
           </div>
           <button
             onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 py-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all font-mono text-[10px] uppercase tracking-widest font-bold"
+            className="w-full flex items-center justify-center gap-2 py-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all font-mono text-[9px] uppercase tracking-widest font-bold"
           >
-            <LogOut size={14} />
+            <LogOut size={12} />
             Sign Out
           </button>
         </div>

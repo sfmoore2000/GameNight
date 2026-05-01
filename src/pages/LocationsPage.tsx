@@ -124,98 +124,101 @@ export function LocationsPage() {
   };
 
   return (
-    <div className="p-8 md:p-12 lg:p-16 max-w-5xl mx-auto space-y-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-brand-border pb-8 gap-8">
+    <div className="p-4 md:p-8 lg:p-10 max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-brand-border pb-6 gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded leading-none">Venue Operations</span>
-            <h1 className="text-4xl font-black uppercase tracking-tight text-slate-900">Locations</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded leading-none">Venue Operations</span>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Locations</h1>
           </div>
-          <p className="text-slate-500 font-medium text-sm">Managing the physical deployment hubs for poker sessions.</p>
+          <p className="text-slate-500 font-medium text-xs">Managing the physical deployment hubs for poker sessions.</p>
         </div>
         <button
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
+          className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white font-sans text-[10px] uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
         >
-          <Plus size={18} />
+          <Plus size={16} />
           Register Venue
         </button>
       </div>
 
       {isAdding && (
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-brand-border p-10 rounded-[2rem] modern-shadow relative grid grid-cols-1 md:grid-cols-2 gap-8"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white border border-brand-border p-6 rounded-2xl modern-shadow relative grid grid-cols-1 md:grid-cols-2 gap-4"
         >
-          <div className="space-y-3">
-            <label className="text-[10px] font-mono uppercase tracking-widest font-black text-slate-400">Venue Designation</label>
+          <div className="space-y-2">
+            <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">Venue Designation</label>
             <input
               autoFocus
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-4 rounded-xl outline-none font-bold text-lg transition-all"
+              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-3 rounded-xl outline-none font-bold text-sm transition-all"
               placeholder="Ex: The Underground"
             />
           </div>
-          <div className="space-y-3">
-            <label className="text-[10px] font-mono uppercase tracking-widest font-black text-slate-400">Physical Hub / Address</label>
+          <div className="space-y-2">
+            <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">Physical Hub / Address</label>
             <input
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
-              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-4 rounded-xl outline-none font-bold text-lg transition-all"
+              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-3 rounded-xl outline-none font-bold text-sm transition-all"
               placeholder="123 Stealth Ave"
             />
           </div>
-          <div className="md:col-span-2 flex gap-4 pt-4">
-            <button onClick={saveLocation} className="flex-1 py-4 bg-emerald-600 text-white font-sans text-xs font-black uppercase tracking-widest hover:bg-emerald-700 rounded-xl modern-shadow transition-all">
-              {editingLocation ? 'Apply Changes' : 'Authorize Venue'}
+          <div className="md:col-span-2 flex gap-3 pt-2">
+            <button onClick={saveLocation} className="flex-1 py-3 bg-emerald-600 text-white font-sans text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 rounded-xl modern-shadow transition-all">
+              {editingLocation ? 'Apply' : 'Authorize Venue'}
             </button>
-            <button onClick={() => { setIsAdding(false); setEditingLocation(null); setNewName(''); setNewAddress(''); }} className="px-10 py-4 border border-brand-border text-slate-400 font-sans text-xs font-black uppercase tracking-widest hover:bg-slate-50 rounded-xl transition-all">Cancel</button>
+            <button onClick={() => { setIsAdding(false); setEditingLocation(null); setNewName(''); setNewAddress(''); }} className="px-6 py-3 border border-brand-border text-slate-400 font-sans text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 rounded-xl transition-all">Cancel</button>
           </div>
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-2">
         {locations.map((loc) => (
-          <div key={loc.id} className="group p-8 bg-white border border-brand-border rounded-2xl hover:border-slate-300 transition-all relative overflow-hidden modern-shadow">
-            <div className="flex justify-between items-start mb-8">
-              <div className="flex gap-2">
-                <div className="bg-slate-50 w-12 h-12 flex items-center justify-center border border-brand-border rounded-xl modern-shadow group-hover:bg-white transition-all">
-                  <MapPin size={20} className="text-emerald-600" />
-                </div>
-                <button
-                  onClick={() => startEdit(loc)}
-                  className="bg-white w-12 h-12 flex items-center justify-center border border-brand-border rounded-xl modern-shadow hover:bg-slate-900 hover:text-white transition-all"
-                >
-                  <Edit2 size={16} />
-                </button>
-                <button
-                  onClick={() => deleteLocation(loc.id)}
-                  disabled={isDeleting === loc.id}
-                  className="bg-white w-12 h-12 flex items-center justify-center border border-rose-100 rounded-xl modern-shadow text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 size={16} className={cn(isDeleting === loc.id && "animate-pulse")} />
-                </button>
-              </div>
+          <div key={loc.id} className="group flex items-center gap-4 p-3 bg-white border border-brand-border rounded-xl hover:border-slate-300 transition-all modern-shadow relative overflow-hidden">
+            <div className={cn(
+              "w-10 h-10 flex items-center justify-center rounded-lg border transition-all shrink-0",
+              loc.active ? "bg-slate-50 border-brand-border text-emerald-600" : "bg-slate-100 border-slate-200 text-slate-300 opacity-40 grayscale"
+            )}>
+              <MapPin size={16} strokeWidth={2.5} />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+               <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name}</h3>
+                  {!loc.active && <span className="text-[7px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded">Locked</span>}
+               </div>
+               <p className="text-[9px] font-mono uppercase tracking-widest text-slate-400 truncate opacity-60">{loc.address || 'Classified Coordinates'}</p>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => startEdit(loc)}
+                className="p-2.5 rounded-lg border border-brand-border text-slate-300 hover:bg-slate-900 hover:text-white transition-all"
+              >
+                <Edit2 size={14} />
+              </button>
               <button
                 onClick={() => toggleLocationStatus(loc)}
                 className={cn(
-                  "px-4 py-1.5 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest",
+                  "p-2.5 rounded-lg border transition-all",
                   loc.active 
-                    ? "border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
-                    : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-600 hover:text-white"
+                    ? "border-emerald-100 text-emerald-600 bg-emerald-50/50 hover:bg-emerald-600 hover:text-white" 
+                    : "border-slate-200 text-slate-400 bg-slate-50 hover:bg-slate-600 hover:text-white"
                 )}
               >
-                {loc.active ? 'Operational' : 'Decommissioned'}
+                <Shield size={14} strokeWidth={2.5} />
               </button>
-            </div>
-            
-            <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2 truncate">{loc.name}</h3>
-            <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed max-w-[90%] line-clamp-1">{loc.address}</p>
-            
-            <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-all">
-               <Building size={120} strokeWidth={1} />
+              <button
+                onClick={() => deleteLocation(loc.id)}
+                disabled={isDeleting === loc.id}
+                className="p-2.5 rounded-lg border border-rose-100 text-rose-300 hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
+              >
+                <Trash2 size={14} className={cn(isDeleting === loc.id && "animate-pulse")} />
+              </button>
             </div>
           </div>
         ))}

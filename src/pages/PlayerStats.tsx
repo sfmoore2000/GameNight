@@ -223,38 +223,38 @@ export function PlayerStats() {
   }
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-4 pb-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <BarChart3 className="w-8 h-8 text-blue-600" />
+          <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
             BUSINESS ANALYTICS
           </h1>
-          <p className="text-slate-500 font-medium">Enterprise performance and financial metrics</p>
+          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Enterprise performance metrics</p>
         </div>
 
         {/* View Switcher */}
-        <div className="flex p-1.5 bg-slate-100 rounded-2xl w-fit">
+        <div className="flex p-1 bg-slate-100 rounded-xl w-fit">
           <button 
             onClick={() => { setViewMode('players'); setSelectedEntityId(null); setSearchTerm(''); }}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2",
-              viewMode === 'players' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              "px-4 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center gap-2 uppercase tracking-widest",
+              viewMode === 'players' ? "bg-white text-blue-600 modern-shadow" : "text-slate-500 hover:text-slate-700"
             )}
           >
-            <Users className="w-4 h-4" />
-            PLAYERS
+            <Users size={12} />
+            Players
           </button>
           <button 
             onClick={() => { setViewMode('staff'); setSelectedEntityId(null); setSearchTerm(''); }}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2",
-              viewMode === 'staff' ? "bg-white text-purple-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              "px-4 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center gap-2 uppercase tracking-widest",
+              viewMode === 'staff' ? "bg-white text-purple-600 modern-shadow" : "text-slate-500 hover:text-slate-700"
             )}
           >
-            <Sparkles className="w-4 h-4" />
-            STAFF
+            <Sparkles size={12} />
+            Staff
           </button>
         </div>
       </div>
@@ -262,84 +262,76 @@ export function PlayerStats() {
       {viewMode === 'players' ? (
         <>
           {/* Player Rankings */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-amber-50 rounded-xl">
-                  <Trophy className="w-5 h-5 text-amber-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">Win Leaders</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Trophy className="w-4 h-4 text-amber-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">Win Leaders</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.mostWins.map((stat, i) => (
-                  <div key={stat.player.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-amber-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{stat.player.name}</span>
+                  <div key={stat.player.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-amber-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.player.name}</span>
                     </div>
-                    <span className="text-xs font-black bg-slate-50 px-2 py-1 rounded-lg text-slate-500">{stat.totalWins} Wins</span>
+                    <span className="font-black text-slate-400 whitespace-nowrap">{stat.totalWins} W</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-emerald-50 rounded-xl">
-                  <Target className="w-5 h-5 text-emerald-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">ROI Giants (%)</h3>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Target className="w-4 h-4 text-emerald-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">ROI Giants</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.highestROI.map((stat, i) => (
-                  <div key={stat.player.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-emerald-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{stat.player.name}</span>
+                  <div key={stat.player.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-emerald-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.player.name}</span>
                     </div>
-                    <span className={`text-xs font-black px-2 py-1 rounded-lg ${stat.roi >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                      {stat.roi.toFixed(1)}%
+                    <span className={`font-black ${stat.roi >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {stat.roi.toFixed(0)}%
                     </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-50 rounded-xl">
-                  <Medal className="w-5 h-5 text-blue-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">Profit Leaders</h3>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Medal className="w-4 h-4 text-blue-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">Profit Leaders</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.highestProfit.map((stat, i) => (
-                  <div key={stat.player.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-blue-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{stat.player.name}</span>
+                  <div key={stat.player.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-blue-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.player.name}</span>
                     </div>
-                    <span className="text-xs font-black text-slate-600">${stat.totalProfit.toLocaleString()}</span>
+                    <span className="font-black text-slate-700">${stat.totalProfit.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-50 rounded-xl">
-                  <PieChart className="w-5 h-5 text-purple-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">Most Experienced</h3>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <PieChart className="w-4 h-4 text-purple-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">Active</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.mostGames.map((stat, i) => (
-                  <div key={stat.player.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-purple-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{stat.player.name}</span>
+                  <div key={stat.player.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-purple-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.player.name}</span>
                     </div>
-                    <span className="text-xs font-black bg-slate-50 px-2 py-1 rounded-lg text-slate-500">{stat.totalGames} Games</span>
+                    <span className="font-black text-slate-400">{stat.totalGames} G</span>
                   </div>
                 ))}
               </div>
@@ -347,15 +339,15 @@ export function PlayerStats() {
           </div>
 
           {/* Player Search and Detail */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[700px]">
-              <div className="p-6 border-b border-slate-50 bg-slate-50/50">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[500px]">
+              <div className="p-3 border-b border-slate-50 bg-slate-50/50">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
                   <input 
                     type="text"
-                    placeholder="Search players..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                    placeholder="Search..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -365,9 +357,8 @@ export function PlayerStats() {
                 <table className="w-full text-left">
                   <thead className="sticky top-0 bg-white border-b border-slate-100 z-10">
                     <tr>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Player</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Profit</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">WR%</th>
+                      <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Player</th>
+                      <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Profit</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -377,21 +368,13 @@ export function PlayerStats() {
                         className={`hover:bg-blue-50/30 cursor-pointer transition-colors ${selectedEntityId === (stat as PlayerStat).player.id ? 'bg-blue-50/50' : ''}`}
                         onClick={() => setSelectedEntityId((stat as PlayerStat).player.id)}
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500">
-                              {(stat as PlayerStat).player.name.charAt(0)}
-                            </div>
-                            <span className="text-sm font-bold text-slate-700">{(stat as PlayerStat).player.name}</span>
-                          </div>
+                        <td className="px-4 py-2">
+                          <span className="text-[11px] font-bold text-slate-700 truncate block">{(stat as PlayerStat).player.name}</span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className={`text-sm font-black ${(stat as PlayerStat).totalProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <td className="px-4 py-2 text-right">
+                          <span className={`text-[11px] font-black ${(stat as PlayerStat).totalProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                             ${(stat as PlayerStat).totalProfit.toLocaleString()}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="text-xs font-bold text-slate-500">{(stat as PlayerStat).winRate.toFixed(0)}%</span>
                         </td>
                       </tr>
                     ))}
@@ -400,113 +383,71 @@ export function PlayerStats() {
               </div>
             </div>
 
-            <div className="xl:col-span-2 space-y-6">
+            <div className="xl:col-span-3 space-y-4">
               {selectedPlayerStat ? (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-slate-900 p-6 rounded-3xl relative overflow-hidden">
-                      <DollarSign className="absolute -right-4 -bottom-4 w-24 h-24 text-white/5" />
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Profit</p>
-                      <p className={`text-2xl font-black ${selectedPlayerStat.totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-slate-900 p-4 rounded-2xl relative overflow-hidden">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Profit</p>
+                      <p className={`text-xl font-black ${selectedPlayerStat.totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                         ${selectedPlayerStat.totalProfit.toLocaleString()}
                       </p>
                     </div>
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Win Rate</p>
-                      <div className="flex items-end gap-2">
-                        <p className="text-2xl font-black text-slate-900">{selectedPlayerStat.winRate.toFixed(1)}%</p>
-                        <p className="text-[10px] font-bold text-slate-400 mb-1.5">{selectedPlayerStat.totalWins} wins</p>
-                      </div>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Win Rate</p>
+                      <p className="text-xl font-black text-slate-900">{selectedPlayerStat.winRate.toFixed(1)}%</p>
                     </div>
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg / Game</p>
-                      <p className={`text-2xl font-black ${selectedPlayerStat.avgProfitPerGame >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg/Game</p>
+                      <p className={`text-xl font-black ${selectedPlayerStat.avgProfitPerGame >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                         ${selectedPlayerStat.avgProfitPerGame.toFixed(0)}
                       </p>
                     </div>
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total ROI</p>
-                      <div className="flex items-center gap-1.5">
-                        {selectedPlayerStat.roi >= 0 ? (
-                          <ArrowUpRight className="w-4 h-4 text-emerald-500" />
-                        ) : (
-                          <ArrowDownRight className="w-4 h-4 text-rose-500" />
-                        )}
-                        <p className={`text-2xl font-black ${selectedPlayerStat.roi >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {selectedPlayerStat.roi.toFixed(1)}%
-                        </p>
-                      </div>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">ROI</p>
+                      <p className={`text-xl font-black ${selectedPlayerStat.roi >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {selectedPlayerStat.roi.toFixed(1)}%
+                      </p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between mb-8">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cumulative Profit Trend</h3>
-                        <p className="text-sm font-medium text-slate-400">Financial performance over {selectedPlayerStat.totalGames} sessions</p>
-                      </div>
+                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Financial Performance</h3>
                     </div>
-                    <div className="h-[400px] w-full">
+                    <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={selectedPlayerStat.history}>
-                          <defs>
-                            <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                           <XAxis 
                             dataKey="date" 
                             axisLine={false}
                             tickLine={false}
-                            tick={{fontSize: 10, fontWeight: 'bold', fill: '#94a3b8'}}
-                            dy={10}
+                            tick={{fontSize: 8, fontWeight: 'bold', fill: '#94a3b8'}}
                             tickFormatter={(val) => format(parseISO(val), 'MMM d')}
                           />
                           <YAxis 
                             axisLine={false}
                             tickLine={false}
-                            tick={{fontSize: 10, fontWeight: 'bold', fill: '#94a3b8'}}
-                            dx={-10}
+                            tick={{fontSize: 8, fontWeight: 'bold', fill: '#94a3b8'}}
                             tickFormatter={(val) => `$${val}`}
                           />
                           <Tooltip 
-                            contentStyle={{ 
-                              borderRadius: '16px', 
-                              border: 'none', 
-                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                              backgroundColor: '#0f172a',
-                              padding: '12px'
-                            }}
-                            itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                            labelStyle={{ color: '#94a3b8', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 800 }}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#0f172a', padding: '8px' }}
+                            itemStyle={{ color: '#fff', fontSize: '10px', fontWeight: 'bold' }}
+                            labelStyle={{ color: '#94a3b8', fontSize: '8px', marginBottom: '2px', textTransform: 'uppercase', fontWeight: 800 }}
                             labelFormatter={(val) => format(parseISO(val), 'MMM d, yyyy')}
-                            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Total Profit']}
                           />
-                          <Area 
-                            type="monotone" 
-                            dataKey="cumulativeProfit" 
-                            stroke="#3b82f6" 
-                            strokeWidth={3}
-                            fillOpacity={1} 
-                            fill="url(#profitGradient)" 
-                            animationDuration={1500}
-                          />
+                          <Area type="monotone" dataKey="cumulativeProfit" stroke="#3b82f6" strokeWidth={2} fillOpacity={0.1} fill="#3b82f6" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-[40px] flex flex-col items-center justify-center p-12 text-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-slate-200/50 flex items-center justify-center mb-6">
-                    <Users className="w-10 h-10 text-slate-300" />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Select a Player</h3>
-                  <p className="text-sm font-medium text-slate-400 max-w-xs">
-                    Choose a player from the list on the left to see their detailed financial performance and trends.
-                  </p>
+                <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 text-center">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">No Selection</p>
+                  <p className="text-[10px] font-medium text-slate-400">Select a player from the registry</p>
                 </div>
               )}
             </div>
@@ -515,46 +456,38 @@ export function PlayerStats() {
       ) : (
         <>
           {/* Staff Rankings */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-50 rounded-xl">
-                  <DollarSign className="w-5 h-5 text-purple-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">Top Earners</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="w-4 h-4 text-purple-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">Top Earners</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.topStaffEarners.map((stat, i) => (
-                  <div key={stat.staff.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-purple-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-purple-600 transition-colors">{stat.staff.name}</span>
+                  <div key={stat.staff.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-purple-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.staff.name}</span>
                     </div>
-                    <span className="text-xs font-black bg-purple-50 px-2 py-1 rounded-lg text-purple-600">
-                      ${stat.totalEarned.toLocaleString()}
-                    </span>
+                    <span className="font-black text-purple-600">${stat.totalEarned.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-50 rounded-xl">
-                  <Activity className="w-5 h-5 text-blue-500" />
-                </div>
-                <h3 className="font-bold text-slate-900 uppercase tracking-wider text-xs">Most Active</h3>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="w-4 h-4 text-blue-500" />
+                <h3 className="font-bold text-slate-900 uppercase tracking-widest text-[9px]">Most Active</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {rankings.mostActiveStaff.map((stat, i) => (
-                  <div key={stat.staff.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black ${i === 0 ? 'text-blue-500' : 'text-slate-300'}`}>#{i + 1}</span>
-                      <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{stat.staff.name}</span>
+                  <div key={stat.staff.id} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className={`font-black ${i === 0 ? 'text-blue-500' : 'text-slate-300'}`}>#{i + 1}</span>
+                      <span className="font-bold text-slate-700 truncate">{stat.staff.name}</span>
                     </div>
-                    <span className="text-xs font-black bg-blue-50 px-2 py-1 rounded-lg text-blue-600">
-                      {stat.totalSessions} Sessions
-                    </span>
+                    <span className="font-black text-blue-600">{stat.totalSessions} S</span>
                   </div>
                 ))}
               </div>
@@ -562,15 +495,15 @@ export function PlayerStats() {
           </div>
 
           {/* Staff List and Detail */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[700px]">
-              <div className="p-6 border-b border-slate-50 bg-slate-50/50">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[500px]">
+              <div className="p-3 border-b border-slate-50 bg-slate-50/50">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
                   <input 
                     type="text"
-                    placeholder="Search staff..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium"
+                    placeholder="Search..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -580,9 +513,8 @@ export function PlayerStats() {
                 <table className="w-full text-left">
                   <thead className="sticky top-0 bg-white border-b border-slate-100 z-10">
                     <tr>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Staff Member</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Avg</th>
+                      <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Staff</th>
+                      <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Earned</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -592,21 +524,13 @@ export function PlayerStats() {
                         className={`hover:bg-purple-50/30 cursor-pointer transition-colors ${selectedEntityId === (stat as StaffStat).staff.id ? 'bg-purple-50/50' : ''}`}
                         onClick={() => setSelectedEntityId((stat as StaffStat).staff.id)}
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500">
-                              {(stat as StaffStat).staff.name.charAt(0)}
-                            </div>
-                            <span className="text-sm font-bold text-slate-700">{(stat as StaffStat).staff.name}</span>
-                          </div>
+                        <td className="px-4 py-2">
+                          <span className="text-[11px] font-bold text-slate-700 truncate block">{(stat as StaffStat).staff.name}</span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="text-sm font-black text-purple-600">
+                        <td className="px-4 py-2 text-right">
+                          <span className="text-[11px] font-black text-purple-600">
                             ${(stat as StaffStat).totalEarned.toLocaleString()}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="text-xs font-bold text-slate-500">${(stat as StaffStat).avgEarnedPerSession.toFixed(0)}</span>
                         </td>
                       </tr>
                     ))}
@@ -615,97 +539,51 @@ export function PlayerStats() {
               </div>
             </div>
 
-            <div className="xl:col-span-2 space-y-6">
+            <div className="xl:col-span-3 space-y-4">
               {selectedStaffStat ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-slate-900 p-6 rounded-3xl relative overflow-hidden">
-                      <DollarSign className="absolute -right-4 -bottom-4 w-24 h-24 text-white/5" />
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Earnings</p>
-                      <p className="text-2xl font-black text-purple-400">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-slate-900 p-4 rounded-2xl relative overflow-hidden">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Earned</p>
+                      <p className="text-xl font-black text-purple-400">
                         ${selectedStaffStat.totalEarned.toLocaleString()}
                       </p>
                     </div>
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sessions Worked</p>
-                      <p className="text-2xl font-black text-slate-900">{selectedStaffStat.totalSessions}</p>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sessions</p>
+                      <p className="text-xl font-black text-slate-900">{selectedStaffStat.totalSessions}</p>
                     </div>
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg / Session</p>
-                      <p className="text-2xl font-black text-purple-600">
-                        ${selectedStaffStat.avgEarnedPerSession.toFixed(0)}
-                      </p>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg/Session</p>
+                      <p className="text-xl font-black text-purple-600">${selectedStaffStat.avgEarnedPerSession.toFixed(0)}</p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between mb-8">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Earning History</h3>
-                        <p className="text-sm font-medium text-slate-400">Payroll performance over {selectedStaffStat.totalSessions} sessions</p>
-                      </div>
+                  <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Earnings Trend</h3>
                     </div>
-                    <div className="h-[400px] w-full">
+                    <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={selectedStaffStat.history}>
-                          <defs>
-                            <linearGradient id="staffGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis 
-                            dataKey="date" 
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{fontSize: 10, fontWeight: 'bold', fill: '#94a3b8'}}
-                            dy={10}
-                            tickFormatter={(val) => format(parseISO(val), 'MMM d')}
-                          />
-                          <YAxis 
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{fontSize: 10, fontWeight: 'bold', fill: '#94a3b8'}}
-                            dx={-10}
-                            tickFormatter={(val) => `$${val}`}
-                          />
+                          <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 8, fill: '#94a3b8'}} tickFormatter={(val) => format(parseISO(val), 'MMM d')} />
+                          <YAxis axisLine={false} tickLine={false} tick={{fontSize: 8, fill: '#94a3b8'}} tickFormatter={(val) => `$${val}`} />
                           <Tooltip 
-                            contentStyle={{ 
-                              borderRadius: '16px', 
-                              border: 'none', 
-                              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                              backgroundColor: '#0f172a',
-                              padding: '12px'
-                            }}
-                            itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                            labelStyle={{ color: '#94a3b8', fontSize: '10px', marginBottom: '4px', textTransform: 'uppercase', fontWeight: 800 }}
-                            labelFormatter={(val) => format(parseISO(val), 'MMM d, yyyy')}
-                            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Total Earned']}
+                            contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: '#0f172a', padding: '8px' }}
+                            itemStyle={{ color: '#fff', fontSize: '10px' }}
+                            labelStyle={{ color: '#94a3b8', fontSize: '8px', textTransform: 'uppercase' }}
                           />
-                          <Area 
-                            type="monotone" 
-                            dataKey="cumulativeEarned" 
-                            stroke="#8b5cf6" 
-                            strokeWidth={3}
-                            fillOpacity={1} 
-                            fill="url(#staffGradient)" 
-                            animationDuration={1500}
-                          />
+                          <Area type="monotone" dataKey="cumulativeEarned" stroke="#8b5cf6" strokeWidth={2} fillOpacity={0.1} fill="#8b5cf6" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-[40px] flex flex-col items-center justify-center p-12 text-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-slate-200/50 flex items-center justify-center mb-6">
-                    <Sparkles className="w-10 h-10 text-slate-300" />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Select Staff Member</h3>
-                  <p className="text-sm font-medium text-slate-400 max-w-xs">
-                    Choose a staff member from the list to analyze their earnings and workload statistics.
-                  </p>
+                <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 text-center">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">No Selection</p>
+                  <p className="text-[10px] font-medium text-slate-400">Select a staff member from the list</p>
                 </div>
               )}
             </div>

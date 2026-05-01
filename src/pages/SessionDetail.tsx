@@ -600,99 +600,101 @@ export function SessionDetail() {
   }, {} as Record<string, number>) : {};
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-8 md:space-y-12">
+    <div className="p-2 md:p-4 lg:p-8 max-w-7xl mx-auto space-y-4 md:space-y-8">
       {/* Top Navigation */}
-      <button 
-        onClick={() => navigate('/')} 
-        className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-widest font-black text-slate-400 hover:text-slate-900 transition-all bg-white px-4 py-2 rounded-lg border border-brand-border modern-shadow"
-      >
-        <ArrowLeft size={14} /> Back to Operations
-      </button>
-
-      {/* Modern Session Header */}
-      <div className="bg-white border border-brand-border rounded-3xl p-6 md:p-10 modern-shadow overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-          <DollarSign size={200} className="text-slate-900" />
+      <div className="flex justify-between items-center">
+        <button 
+          onClick={() => navigate('/')} 
+          className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-widest font-black text-slate-400 hover:text-slate-900 transition-all bg-white px-3 py-1.5 rounded-lg border border-brand-border modern-shadow"
+        >
+          <ArrowLeft size={12} /> Back
+        </button>
+        <div className="flex gap-2">
+          {session.status === 'active' && (
+            <button
+              onClick={closeSession}
+              className="px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all modern-shadow"
+            >
+              Close
+            </button>
+          )}
+          <button
+            onClick={deleteSession}
+            disabled={isDeleting}
+            className="px-3 py-1.5 bg-white border border-rose-100 text-rose-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all modern-shadow"
+          >
+            Purge
+          </button>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 relative z-10">
-          <div className="md:col-span-12 lg:col-span-4">
-            <div className="flex items-center gap-4 mb-3">
-              <h1 className="text-4xl font-black uppercase tracking-tight text-slate-900">
+      </div>
+
+      {/* Condensed Session Header */}
+      <div className="bg-white border border-brand-border rounded-2xl p-4 md:p-6 modern-shadow relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-12 lg:col-span-5">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">
                 {format(parseISO(session.date), 'MMM d, yyyy')}
               </h1>
               {session.status === 'active' && (
                 <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[8px] font-black uppercase tracking-widest border border-emerald-200 rounded-full">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
                   Live
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 mt-1">
-              <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px] uppercase tracking-widest font-bold">
-                <MapPin size={14} className="text-emerald-500" />
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[9px] uppercase tracking-widest font-bold">
+                <MapPin size={12} className="text-emerald-500" />
                 {locationName}
               </div>
-              <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px] uppercase tracking-widest font-bold">
-                <CreditCard size={14} className="text-emerald-500" />
-                Primary Payout: {primaryPayoutMethod}
+              <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[9px] uppercase tracking-widest font-bold">
+                <CreditCard size={12} className="text-emerald-500" />
+                Payout: {primaryPayoutMethod}
               </div>
             </div>
             
-            <div className="flex gap-3 mt-8">
+            <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setIsAddingPlayer(true)}
                 disabled={session.status === 'completed'}
-                className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all modern-shadow disabled:opacity-20"
+                className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all modern-shadow disabled:opacity-20"
               >
                 + Player
               </button>
               <button
                 onClick={() => setIsAddingStaff(true)}
                 disabled={session.status === 'completed'}
-                className="px-6 py-3 bg-white border border-brand-border text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all modern-shadow disabled:opacity-20"
+                className="flex-1 px-4 py-2 bg-white border border-brand-border text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all modern-shadow disabled:opacity-20"
               >
                 + Staff
               </button>
-              {session.status === 'active' && (
-                <button
-                  onClick={closeSession}
-                  className="px-6 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all modern-shadow"
-                >
-                  Close Session
-                </button>
-              )}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteSession();
-                }}
-                disabled={isDeleting}
-                className="p-3 text-rose-400 hover:text-rose-600 transition-all hover:bg-rose-50 rounded-xl disabled:opacity-50"
-                title="Purge Session"
+                onClick={startEditMetadata}
+                className="px-3 py-2 bg-white border border-brand-border text-slate-400 rounded-lg hover:text-slate-900 transition-all"
               >
-                {isDeleting ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+                <MoreHorizontal size={16} />
               </button>
             </div>
           </div>
 
-          <div className="md:col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-slate-50/50 p-5 rounded-2xl border border-brand-border/50">
-              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black mb-1 block">Gross Volume</span>
-              <p className="text-xl font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</p>
+          <div className="md:col-span-12 lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
+              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">Buy-In</span>
+              <p className="text-base font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</p>
             </div>
-            <div className="bg-slate-50/50 p-5 rounded-2xl border border-brand-border/50">
-              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black mb-1 block">Account Receivable</span>
-              <p className="text-xl font-black text-rose-500">{formatCurrency(sessionStats.outstandingCredit)}</p>
+            <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
+              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">A/R (Credit)</span>
+              <p className="text-base font-black text-rose-500">{formatCurrency(sessionStats.outstandingCredit)}</p>
             </div>
-            <div className="bg-slate-50/50 p-5 rounded-2xl border border-brand-border/50">
-              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black mb-1 block">Cash In-Hand</span>
-              <p className="text-xl font-black text-slate-900">{formatCurrency(sessionStats.realizedCash)}</p>
+            <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
+              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">Cash-In</span>
+              <p className="text-base font-black text-slate-900">{formatCurrency(sessionStats.realizedCash)}</p>
             </div>
-            <div className="bg-slate-50/50 p-5 rounded-2xl border border-brand-border/50">
-              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black mb-1 block">Net Liquidity</span>
+            <div className="bg-slate-50/50 p-3 rounded-xl border border-brand-border/50">
+              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black mb-0.5 block">Balance</span>
               <p className={cn(
-                "text-xl font-black",
+                "text-base font-black",
                 sessionStats.hostBalance < 0 ? "text-rose-500" : "text-emerald-600"
               )}>
                 {formatCurrency(sessionStats.hostBalance)}
@@ -703,79 +705,69 @@ export function SessionDetail() {
       </div>
 
       {/* Spreadsheet Ledgers Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Main Player Ledger */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="flex justify-between items-center border-b border-brand-border pb-4">
-             <h2 className="text-[11px] uppercase font-black tracking-widest text-slate-900 flex items-center gap-2">
-               <span className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+        <div className="xl:col-span-9 space-y-3">
+          <div className="flex justify-between items-center border-b border-brand-border pb-2">
+             <h2 className="text-[10px] uppercase font-black tracking-widest text-slate-900 flex items-center gap-2">
+               <span className="w-1 h-4 bg-emerald-500 rounded-full" />
                Player Ledger
              </h2>
-             <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest">Active Seats: {entries.filter(e => e.status === 'playing').length} / {entries.length}</span>
+             <span className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest">Seats: {entries.filter(e => e.status === 'playing').length} / {entries.length}</span>
           </div>
 
-          <div className="bg-white border border-brand-border rounded-2xl overflow-x-auto modern-shadow">
-            <table className="w-full border-collapse min-w-[700px]">
+          <div className="bg-white border border-brand-border rounded-xl overflow-x-auto modern-shadow">
+            <table className="w-full border-collapse min-w-[600px]">
               <thead>
-                <tr className="bg-slate-50/50 border-b border-brand-border">
-                  <th className="px-6 py-4 text-left font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Member</th>
-                  <th className="px-6 py-4 text-right font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Buy-Ins</th>
-                  <th className="px-6 py-4 text-right font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Settlement</th>
-                  <th className="px-6 py-4 text-right font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Net</th>
-                  <th className="px-6 py-4 text-right font-mono text-[9px] uppercase tracking-widest text-slate-400 font-black">Control</th>
+                <tr className="bg-slate-50/30 border-b border-brand-border">
+                  <th className="px-4 py-3 text-left font-mono text-[8px] uppercase tracking-widest text-slate-400 font-black">Member</th>
+                  <th className="px-4 py-3 text-right font-mono text-[8px] uppercase tracking-widest text-slate-400 font-black">Holdings</th>
+                  <th className="px-4 py-3 text-right font-mono text-[8px] uppercase tracking-widest text-slate-400 font-black">Settled</th>
+                  <th className="px-4 py-3 text-right font-mono text-[8px] uppercase tracking-widest text-slate-400 font-black">Net</th>
+                  <th className="px-4 py-3 text-right font-mono text-[8px] uppercase tracking-widest text-slate-400 font-black">Control</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border">
                 {entries.map((entry) => (
-                  <tr key={entry.id} className={cn("group hover:bg-slate-50 transition-all", entry.status === 'finished' && "bg-slate-50/10")}>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{entry.playerDisplayName}</p>
+                  <tr key={entry.id} className={cn("group hover:bg-slate-50 transition-all", entry.status === 'finished' && "bg-slate-50/5 opacity-80")}>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-[12px] font-black text-slate-900 uppercase tracking-tight truncate">{entry.playerDisplayName}</p>
                           <span className={cn(
-                            "text-[8px] font-mono border px-1.5 py-0.5 rounded uppercase tracking-tighter",
+                            "text-[7px] font-mono border px-1 py-0 rounded uppercase tracking-tighter",
                             entry.status === 'playing' ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-slate-50 border-slate-100 text-slate-400"
                           )}>{entry.status}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <p className="text-sm font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
+                    <td className="px-4 py-3 text-right">
+                      <p className="text-[12px] font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
                       {entry.buyIns.some(b => b.method === 'credit') && (
                         <div className="flex flex-col items-end">
-                          <span className="text-[8px] font-mono text-rose-500 uppercase tracking-widest font-bold">Includes Credit</span>
-                          {(entry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0) - (entry.totalSettled || 0)) > 0 && (
-                            <span className="text-[7px] font-mono bg-rose-50 text-rose-600 px-1 rounded border border-rose-100">
-                              Owed: {formatCurrency(entry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0) - (entry.totalSettled || 0))}
-                            </span>
-                          )}
+                          <span className="text-[7px] font-mono text-rose-500 uppercase tracking-widest font-bold">Credit Line</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <p className="text-sm font-black text-slate-900">{entry.totalPayout > 0 ? formatCurrency(entry.totalPayout) : '—'}</p>
-                      {entry.payouts?.length > 0 && (
-                        <span className="text-[8px] font-mono text-slate-400 uppercase tracking-tight">
-                          {entry.payouts.length > 1 ? `${entry.payouts.length} Parts` : PAYMENT_METHODS.find(m => m.id === entry.payouts[0].method)?.label}
-                        </span>
-                      )}
+                    <td className="px-4 py-3 text-right">
+                      <p className="text-[12px] font-black text-slate-900">{entry.totalPayout > 0 ? formatCurrency(entry.totalPayout) : '—'}</p>
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <p className={cn("text-base font-black tracking-tight", entry.netProfit >= 0 ? "text-emerald-600" : "text-rose-500")}>
+                    <td className="px-4 py-3 text-right">
+                      <p className={cn("text-[13px] font-black tracking-tight", entry.netProfit >= 0 ? "text-emerald-600" : "text-rose-500")}>
                         {entry.netProfit > 0 ? '+' : ''}{formatCurrency(entry.netProfit)}
                       </p>
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1.5 focus-within:opacity-100">
                         <button 
                            onClick={() => {
                              setSelectedEntryId(entry.id);
                              setModalMode('buyin');
                            }}
                            disabled={session.status === 'completed' || entry.status === 'finished'}
-                           className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all modern-shadow disabled:opacity-10"
+                           className="px-3 py-1.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all modern-shadow disabled:opacity-5"
                         >
-                           + Buy-In
+                           Buy-In
                         </button>
                         <button 
                            onClick={() => {
@@ -785,13 +777,13 @@ export function SessionDetail() {
                            }}
                            disabled={session.status === 'completed'}
                            className={cn(
-                             "px-4 py-2 border rounded-lg text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-10",
+                             "px-3 py-1.5 border rounded text-[8px] font-black uppercase tracking-widest transition-all disabled:opacity-5",
                              (entry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0) - (entry.totalSettled || 0)) > 0
                                ? "border-rose-200 text-rose-500 hover:bg-rose-50"
                                : "border-brand-border text-slate-900 hover:bg-slate-50"
                            )}
                         >
-                           {(entry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0) - (entry.totalSettled || 0)) > 0 ? 'Collect' : 'Settle'}
+                           Settle
                         </button>
                       </div>
                     </td>
@@ -802,41 +794,41 @@ export function SessionDetail() {
           </div>
         </div>
 
-        {/* Staff & Support Section */}
-        <div className="lg:col-span-4 space-y-6">
-           <div className="flex justify-between items-center border-b border-brand-border pb-4">
-             <h2 className="text-[11px] uppercase font-black tracking-widest text-slate-900 flex items-center gap-2">
-               <span className="w-1.5 h-6 bg-slate-900 rounded-full" />
+        {/* Dense Staff & Support Section */}
+        <div className="xl:col-span-3 space-y-3">
+           <div className="flex justify-between items-center border-b border-brand-border pb-2">
+             <h2 className="text-[10px] uppercase font-black tracking-widest text-slate-900 flex items-center gap-2">
+               <span className="w-1 h-4 bg-slate-900 rounded-full" />
                Personnel
              </h2>
           </div>
 
-          <div className="bg-white border border-brand-border rounded-2xl overflow-hidden modern-shadow divide-y divide-brand-border">
+          <div className="bg-white border border-brand-border rounded-xl overflow-hidden modern-shadow divide-y divide-brand-border">
             {staffEntries.length === 0 && (
-              <div className="p-8 text-center bg-slate-50/50">
-                 <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">No assigned staff yet</p>
+              <div className="p-6 text-center bg-slate-50/50">
+                 <p className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">No assigned staff</p>
               </div>
             )}
             {staffEntries.map((entry) => (
-              <div key={entry.id} className="p-6 group hover:bg-slate-50 transition-all">
-                <div className="flex justify-between items-start mb-4">
+              <div key={entry.id} className="p-4 group hover:bg-slate-50 transition-all">
+                <div className="flex justify-between items-start mb-2">
                   <div>
-                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{entry.staffDisplayName}</p>
-                    <span className="text-[8px] font-mono text-slate-300 uppercase tracking-widest">Support Division</span>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{entry.staffDisplayName}</p>
+                    <span className="text-[7px] font-mono text-slate-300 uppercase tracking-widest">Rotation</span>
                   </div>
                   <button 
                     onClick={() => setSelectedStaffEntryId(entry.id)}
                     disabled={session.status === 'completed'}
-                    className="p-2 text-slate-300 hover:text-slate-900 transition-colors"
+                    className="p-1.5 text-slate-200 hover:text-slate-900 transition-colors"
                   >
-                    <MoreHorizontal size={20} />
+                    <MoreHorizontal size={14} />
                   </button>
                 </div>
                 <div className="flex justify-between items-end">
-                  <div className="px-3 py-1 bg-slate-100 rounded text-[9px] font-black uppercase tracking-widest text-slate-500">
-                    {entry.payoutAmount > 0 ? PAYMENT_METHODS.find(m => m.id === entry.method)?.label : 'Pending Payout'}
+                  <div className="px-2 py-0.5 bg-slate-100 rounded text-[7px] font-black uppercase tracking-widest text-slate-400">
+                    {entry.payoutAmount > 0 ? PAYMENT_METHODS.find(m => m.id === entry.method)?.label : 'Pending'}
                   </div>
-                  <p className="text-xl font-black text-rose-500">{entry.payoutAmount > 0 ? formatCurrency(entry.payoutAmount) : '$0.00'}</p>
+                  <p className="text-[13px] font-black text-rose-500">{entry.payoutAmount > 0 ? formatCurrency(entry.payoutAmount) : '$0.00'}</p>
                 </div>
               </div>
             ))}
@@ -888,31 +880,31 @@ export function SessionDetail() {
               </div>
 
               {modalMode === 'buyin' ? (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">Re-Buy / Add Liquidity</h2>
-                    <p className="text-sm text-slate-400 font-medium">Inject funds into player position.</p>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Re-Buy / Add Liquidity</h2>
+                    <p className="text-xs text-slate-400 font-medium">Inject funds into player position.</p>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-end mb-2">
-                       <label className="text-[10px] font-mono uppercase tracking-widest font-black text-slate-400">Amount</label>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-end mb-1">
+                       <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">Amount</label>
                        <div className="text-right">
-                         <span className="text-[8px] font-mono text-slate-300 uppercase block">Total Buy-In</span>
-                         <span className="text-sm font-black text-slate-900">{formatCurrency(selectedEntry?.totalBuyIn || 0)}</span>
+                         <span className="text-[7px] font-mono text-slate-300 uppercase block leading-none">Total</span>
+                         <span className="text-xs font-black text-slate-900">{formatCurrency(selectedEntry?.totalBuyIn || 0)}</span>
                        </div>
                     </div>
                     <div className="relative group">
-                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
                       <input
                         type="number"
                         placeholder="0.00"
                         value={buyInAmount}
                         onChange={(e) => setBuyInAmount(e.target.value)}
-                        className="w-full bg-slate-50 border border-brand-border p-6 pl-12 rounded-2xl text-4xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
+                        className="w-full bg-slate-50 border border-brand-border p-4 pl-10 rounded-xl text-2xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {PAYMENT_METHODS.map(method => (
                         <button
                           key={method.id}
@@ -929,17 +921,17 @@ export function SessionDetail() {
                   </div>
 
                   {(selectedEntry?.buyIns.length || 0) > 0 && (
-                    <div className="space-y-1 max-h-[120px] overflow-y-auto pr-2">
-                      <span className="text-[8px] font-mono text-slate-300 uppercase tracking-widest block mb-2">Buy-In History</span>
+                    <div className="space-y-1 max-h-[80px] overflow-y-auto pr-1">
+                      <span className="text-[7px] font-mono text-slate-300 uppercase tracking-widest block mb-1">Buy-In History</span>
                       {selectedEntry?.buyIns.map((bi, i) => (
-                        <div key={i} className="flex justify-between items-center py-2 border-b border-brand-border border-dashed last:border-0 group/bi">
-                          <div className="flex items-center gap-4">
+                        <div key={i} className="flex justify-between items-center py-1.5 border-b border-brand-border border-dashed last:border-0 group/bi">
+                          <div className="flex items-center gap-3">
                             <Trash2 
-                              size={12} 
-                              className="opacity-0 group-hover/bi:opacity-100 cursor-pointer text-rose-300 hover:text-rose-500 transition-all"
+                              size={10} 
+                              className="opacity-0 group-hover/bi:opacity-100 cursor-pointer text-rose-300 hover:text-rose-500 transition-all font-black"
                               onClick={() => removeBuyIn(selectedEntryId!, i)}
                             />
-                            <span className={cn("text-[9px] font-black uppercase", bi.method === 'credit' ? "text-rose-500" : "text-slate-400")}>
+                            <span className={cn("text-[8px] font-black uppercase", bi.method === 'credit' ? "text-rose-500" : "text-slate-400")}>
                                {PAYMENT_METHODS.find(m => m.id === bi.method)?.label}
                             </span>
                           </div>
@@ -949,32 +941,32 @@ export function SessionDetail() {
                     </div>
                   )}
 
-                  <div className="pt-6 border-t border-brand-border">
+                  <div className="pt-4 border-t border-brand-border">
                     <button 
                       onClick={() => setSelectedEntryId(null)}
-                      className="w-full py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+                      className="w-full py-3 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
                     >
                       Done
                     </button>
                   </div>
                 </div>
               ) : modalMode === 'settle' ? (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">Settlement Ledger</h2>
-                    <p className="text-sm text-slate-400 font-medium">Process payouts and verify seat integrity.</p>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Settlement Ledger</h2>
+                    <p className="text-xs text-slate-400 font-medium">Process payouts and verify seat integrity.</p>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-brand-border">
+                  <div className="space-y-4">
+                    <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-brand-border">
                       <div className="relative group">
-                        <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
                         <input
                           type="number"
                           placeholder="0.00"
                           value={cashOutAmount}
                           onChange={(e) => setCashOutAmount(e.target.value)}
-                          className="w-full bg-white border border-brand-border p-5 pl-12 rounded-xl text-3xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
+                          className="w-full bg-white border border-brand-border p-4 pl-10 rounded-xl text-2xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
                         />
                       </div>
                       
@@ -983,9 +975,9 @@ export function SessionDetail() {
                           <button
                             key={method.id}
                             onClick={() => cashOutPlayer(selectedEntryId!, method.id)}
-                            className="py-4 bg-white border border-brand-border rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all modern-shadow"
+                            className="py-3 bg-white border border-brand-border rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all modern-shadow"
                           >
-                            Pay via {method.label}
+                            Pay {method.label}
                           </button>
                         ))}
                       </div>

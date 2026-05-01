@@ -119,95 +119,93 @@ export function StaffPage() {
   };
 
   return (
-    <div className="p-8 md:p-12 lg:p-16 max-w-5xl mx-auto space-y-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-brand-border pb-8 gap-8">
+    <div className="p-4 md:p-8 lg:p-10 max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-brand-border pb-6 gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded leading-none">Force Management</span>
-            <h1 className="text-4xl font-black uppercase tracking-tight text-slate-900">Support Staff</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded leading-none">Force Management</span>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Support Staff</h1>
           </div>
-          <p className="text-slate-500 font-medium text-sm">Managing active duty hospitality and security personnel.</p>
+          <p className="text-slate-500 font-medium text-xs">Managing active duty hospitality and security personnel.</p>
         </div>
         <button
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
+          className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white font-sans text-[10px] uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
         >
-          <Plus size={18} />
+          <Plus size={16} />
           Add Personnel
         </button>
       </div>
 
       {isAdding && (
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-brand-border p-10 rounded-[2rem] modern-shadow relative flex flex-col md:flex-row gap-8 items-end"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white border border-brand-border p-6 rounded-2xl modern-shadow relative flex flex-col md:flex-row gap-4 items-end"
         >
-          <div className="flex-1 space-y-3">
-            <label className="text-[10px] font-mono uppercase tracking-widest font-black text-slate-400">Personnel Designation</label>
+          <div className="flex-1 space-y-2">
+            <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">Personnel Designation</label>
             <input
               autoFocus
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-4 rounded-xl outline-none font-bold text-lg transition-all"
+              className="w-full bg-slate-50 border border-brand-border focus:border-emerald-500 p-3 rounded-xl outline-none font-bold text-sm transition-all"
               placeholder="Ex: Agent Smith"
             />
           </div>
-          <div className="flex gap-4">
-             <button onClick={saveStaff} className="px-10 py-4 bg-emerald-600 text-white font-sans text-xs font-black uppercase tracking-widest hover:bg-emerald-700 rounded-xl modern-shadow transition-all">
-               {editingStaff ? 'Apply Changes' : 'Authorize'}
+          <div className="flex gap-3">
+             <button onClick={saveStaff} className="px-6 py-3 bg-emerald-600 text-white font-sans text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 rounded-xl modern-shadow transition-all">
+               {editingStaff ? 'Apply' : 'Authorize'}
              </button>
-             <button onClick={() => { setIsAdding(false); setEditingStaff(null); setNewName(''); }} className="px-10 py-4 border border-brand-border text-slate-400 font-sans text-xs font-black uppercase tracking-widest hover:bg-slate-50 rounded-xl transition-all">Cancel</button>
+             <button onClick={() => { setIsAdding(false); setEditingStaff(null); setNewName(''); }} className="px-6 py-3 border border-brand-border text-slate-400 font-sans text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 rounded-xl transition-all">Cancel</button>
           </div>
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-2">
         {staff.map((s) => (
-          <div key={s.id} className={cn(
-            "group p-10 border rounded-[2.5rem] flex flex-col items-center text-center transition-all relative overflow-hidden modern-shadow",
-            s.active ? "bg-white border-brand-border" : "bg-slate-50 border-slate-200 grayscale opacity-40"
-          )}>
+          <div key={s.id} className="group flex items-center gap-4 p-3 bg-white border border-brand-border rounded-xl hover:border-slate-300 transition-all modern-shadow relative overflow-hidden">
             <div className={cn(
-              "w-20 h-20 flex items-center justify-center rounded-[1.5rem] border transition-all mb-8 modern-shadow",
-              s.active ? "bg-slate-50 border-brand-border text-emerald-600" : "bg-slate-100 border-slate-200 text-slate-300"
+              "w-10 h-10 flex items-center justify-center rounded-lg border transition-all shrink-0",
+              s.active ? "bg-slate-50 border-brand-border text-emerald-600" : "bg-slate-100 border-slate-200 text-slate-300 opacity-40 grayscale"
             )}>
-              <Star size={32} strokeWidth={2} fill={s.active ? "currentColor" : "none"} />
+              <Star size={16} strokeWidth={2.5} fill={s.active ? "currentColor" : "none"} />
             </div>
             
-            <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-1">{s.name}</h3>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-slate-400 mb-10">Verified Hospitality</p>
-            
-            <div className="flex gap-2 w-full">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                 <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{s.name}</h3>
+                 {!s.active && <span className="text-[7px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded">Retired</span>}
+              </div>
+              <p className="text-[9px] font-mono uppercase tracking-widest text-slate-400 truncate opacity-60">Verified Hospitality</p>
+            </div>
+
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => startEdit(s)}
-                className="flex-1 py-4 rounded-xl border border-brand-border text-slate-400 bg-white hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all text-[10px] font-black uppercase tracking-widest modern-shadow"
+                className="p-2.5 rounded-lg border border-brand-border text-slate-300 hover:bg-slate-900 hover:text-white transition-all"
               >
-                <Edit2 size={14} className="mx-auto" />
+                <Edit2 size={14} />
               </button>
               <button
                 onClick={() => toggleStaffStatus(s)}
                 className={cn(
-                  "flex-[2] py-4 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
+                  "p-2.5 rounded-lg border transition-all",
                   s.active 
-                    ? "border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
-                    : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-600 hover:text-white"
+                    ? "border-emerald-100 text-emerald-600 bg-emerald-50/50 hover:bg-emerald-600 hover:text-white" 
+                    : "border-slate-200 text-slate-400 bg-slate-50 hover:bg-slate-600 hover:text-white"
                 )}
               >
-                {s.active ? 'Active' : 'Off'}
+                <Shield size={14} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => deleteStaff(s.id)}
                 disabled={isDeleting === s.id}
-                className="flex-1 py-4 rounded-xl border border-rose-100 text-rose-400 bg-white hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all modern-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2.5 rounded-lg border border-rose-100 text-rose-300 hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
               >
-                <Trash2 size={14} className={cn("mx-auto", isDeleting === s.id && "animate-pulse")} />
+                <Trash2 size={14} className={cn(isDeleting === s.id && "animate-pulse")} />
               </button>
             </div>
-
-            <span className="absolute -left-2 -top-4 text-7xl font-black text-slate-100/50 select-none pointer-events-none group-hover:translate-x-1 transition-all opacity-20">
-              {s.name.charAt(0)}
-            </span>
           </div>
         ))}
       </div>
