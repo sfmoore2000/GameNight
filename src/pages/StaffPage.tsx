@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Staff } from '../types';
-import { Star, Plus, Edit2 } from 'lucide-react';
+import { Star, Plus, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -10,6 +10,7 @@ export function StaffPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [newName, setNewName] = useState('');
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStaff() {
@@ -31,6 +32,27 @@ export function StaffPage() {
       supabase.removeChannel(subscription);
     };
   }, []);
+
+  const deleteStaff = async (id: string) => {
+    if (!window.confirm('PERMANENT DELETION: This will remove this personnel record. This action cannot be undone. Proceed?')) return;
+    
+    setIsDeleting(id);
+    try {
+      const { error } = await supabase
+        .from('staff')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setStaff(staff.filter(s => s.id !== id));
+    } catch (error) {
+      console.error("Delete staff failed:", error);
+      alert("Could not delete staff member. They may have active duty records in session history.");
+    } finally {
+      setIsDeleting(null);
+    }
+  };
 
   const saveStaff = async () => {
     if (!newName) return;
@@ -166,13 +188,20 @@ export function StaffPage() {
               <button
                 onClick={() => toggleStaffStatus(s)}
                 className={cn(
-                  "flex-[2] py-4 rounded-2xl border transition-all text-[10px] font-black uppercase tracking-widest",
+                  "flex-[2] py-4 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
                   s.active 
                     ? "border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" 
                     : "border-slate-200 bg-slate-50 text-slate-400 hover:bg-slate-600 hover:text-white"
                 )}
               >
-                {s.active ? 'Active Duty' : 'Off Rotation'}
+                {s.active ? 'Active' : 'Off'}
+              </button>
+              <button
+                onClick={() => deleteStaff(s.id)}
+                disabled={isDeleting === s.id}
+                className="flex-1 py-4 rounded-xl border border-rose-100 text-rose-400 bg-white hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all modern-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={14} className={cn("mx-auto", isDeleting === s.id && "animate-pulse")} />
               </button>
             </div>
 

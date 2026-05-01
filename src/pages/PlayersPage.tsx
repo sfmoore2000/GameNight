@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Player } from '../types';
-import { Plus, User, Mail, Shield, Edit2 } from 'lucide-react';
+import { Plus, User, Mail, Shield, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -11,6 +11,7 @@ export function PlayersPage() {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPlayers() {
@@ -32,6 +33,27 @@ export function PlayersPage() {
       supabase.removeChannel(subscription);
     };
   }, []);
+
+  const deletePlayer = async (id: string) => {
+    if (!window.confirm('PERMANENT DELETION: This will remove this member and all associated session history. This action cannot be undone. Proceed?')) return;
+    
+    setIsDeleting(id);
+    try {
+      const { error } = await supabase
+        .from('players')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setPlayers(players.filter(p => p.id !== id));
+    } catch (error) {
+      console.error("Delete player failed:", error);
+      alert("Could not delete member. They may have active session records that need to be cleared first.");
+    } finally {
+      setIsDeleting(null);
+    }
+  };
 
   const savePlayer = async () => {
     if (!newName) return;
@@ -192,6 +214,13 @@ export function PlayersPage() {
                 )}
               >
                 <Shield size={18} strokeWidth={2} />
+              </button>
+              <button
+                onClick={() => deletePlayer(player.id)}
+                disabled={isDeleting === player.id}
+                className="p-4 rounded-xl border border-rose-100 text-rose-400 bg-rose-50/30 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all modern-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={18} className={cn(isDeleting === player.id && "animate-pulse")} />
               </button>
             </div>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Location } from '../types';
-import { Plus, MapPin, Building, Edit2 } from 'lucide-react';
+import { Plus, MapPin, Building, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 
@@ -11,6 +11,7 @@ export function LocationsPage() {
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -32,6 +33,27 @@ export function LocationsPage() {
       supabase.removeChannel(subscription);
     };
   }, []);
+
+  const deleteLocation = async (id: string) => {
+    if (!window.confirm('PERMANENT DELETION: This will remove this venue. This action cannot be undone. Proceed?')) return;
+    
+    setIsDeleting(id);
+    try {
+      const { error } = await supabase
+        .from('locations')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setLocations(locations.filter(l => l.id !== id));
+    } catch (error) {
+      console.error("Delete location failed:", error);
+      alert("Could not delete location. It may have associated session records that need to be cleared first.");
+    } finally {
+      setIsDeleting(null);
+    }
+  };
 
   const saveLocation = async () => {
     if (!newName) return;
@@ -167,6 +189,13 @@ export function LocationsPage() {
                   className="bg-white w-12 h-12 flex items-center justify-center border border-brand-border rounded-xl modern-shadow hover:bg-slate-900 hover:text-white transition-all"
                 >
                   <Edit2 size={16} />
+                </button>
+                <button
+                  onClick={() => deleteLocation(loc.id)}
+                  disabled={isDeleting === loc.id}
+                  className="bg-white w-12 h-12 flex items-center justify-center border border-rose-100 rounded-xl modern-shadow text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 size={16} className={cn(isDeleting === loc.id && "animate-pulse")} />
                 </button>
               </div>
               <button
