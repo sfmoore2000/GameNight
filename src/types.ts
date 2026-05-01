@@ -21,7 +21,7 @@ export interface Staff {
   createdAt: string;
 }
 
-export type PaymentMethod = 'cash' | 'cash_app' | 'apple_pay' | 'venmo' | 'paypal' | 'chime' | 'credit';
+export type PaymentMethod = 'cash' | 'cash_app' | 'apple_pay' | 'venmo' | 'paypal' | 'zelle' | 'credit';
 
 export interface BuyIn {
   amount: number;
@@ -87,6 +87,6 @@ export const PAYMENT_METHODS: { id: PaymentMethod; label: string }[] = [
   { id: 'apple_pay', label: 'Apple Pay' },
   { id: 'venmo', label: 'Venmo' },
   { id: 'paypal', label: 'PayPal' },
-  { id: 'chime', label: 'Chime' },
+  { id: 'zelle', label: 'Zelle' },
   { id: 'credit', label: 'Credit' },
 ];

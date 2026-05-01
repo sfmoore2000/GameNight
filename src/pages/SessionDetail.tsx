@@ -22,7 +22,6 @@ export function SessionDetail() {
   const [isAddingPlayer, setIsAddingPlayer] = useState(false);
   const [isAddingStaff, setIsAddingStaff] = useState(false);
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ledger' | 'summary'>('ledger');
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [modalMode, setModalMode] = useState<'buyin' | 'settle' | 'ledger'>('buyin');
   const [selectedStaffEntryId, setSelectedStaffEntryId] = useState<string | null>(null);
@@ -30,6 +29,7 @@ export function SessionDetail() {
   // Form States
   const [buyInAmount, setBuyInAmount] = useState('');
   const [cashOutAmount, setCashOutAmount] = useState('');
+  const [returnedChips, setReturnedChips] = useState('');
   const [staffPayoutAmount, setStaffPayoutAmount] = useState('');
   const [settlementAmount, setSettlementAmount] = useState('');
   const [initialBuyIn, setInitialBuyIn] = useState('');
@@ -745,210 +745,90 @@ export function SessionDetail() {
         <div className="xl:col-span-9 space-y-3">
           <div className="flex justify-between items-center border-b border-brand-border pb-1.5">
              <div className="flex items-center gap-4">
-               <h2 
-                 onClick={() => setActiveTab('ledger')}
-                 className={cn(
-                   "text-[10px] uppercase font-black tracking-widest flex items-center gap-2 cursor-pointer transition-all",
-                   activeTab === 'ledger' ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
-                 )}
-               >
-                 <span className={cn("w-1 h-3 rounded-full transition-all", activeTab === 'ledger' ? "bg-emerald-500" : "bg-slate-200")} />
+               <h2 className="text-[10px] uppercase font-black tracking-widest flex items-center gap-2 transition-all text-slate-900">
+                 <span className="w-1 h-3 rounded-full bg-emerald-500" />
                  Player Ledger
-               </h2>
-               <h2 
-                 onClick={() => setActiveTab('summary')}
-                 className={cn(
-                   "text-[10px] uppercase font-black tracking-widest flex items-center gap-2 cursor-pointer transition-all",
-                   activeTab === 'summary' ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
-                 )}
-               >
-                 <span className={cn("w-1 h-3 rounded-full transition-all", activeTab === 'summary' ? "bg-blue-500" : "bg-slate-200")} />
-                 Session Summary
                </h2>
              </div>
              <span className="text-[7px] font-mono text-slate-400 font-bold uppercase tracking-widest">Active: {entries.filter(e => e.status === 'playing').length}</span>
           </div>
 
-          {activeTab === 'ledger' ? (
-            <div className="bg-white border border-brand-border rounded-xl overflow-x-auto modern-shadow">
-              <table className="w-full border-collapse min-w-[600px]">
-                <thead>
-                  <tr className="bg-slate-50/30 border-b border-brand-border">
-                    <th className="px-3 py-2 text-left font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Member</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Buy-In</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Payout</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Adjust</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Net</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-brand-border">
-                  {entries.map((entry) => (
-                    <tr key={entry.id} className={cn("group hover:bg-slate-50 transition-all", entry.status === 'finished' && "bg-slate-50/5 opacity-80")}>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 overflow-hidden">
-                            <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{entry.playerDisplayName}</p>
-                            <span className={cn(
-                              "text-[6px] font-mono border px-1 rounded uppercase tracking-tighter",
-                              entry.status === 'playing' ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-slate-50 border-slate-100 text-slate-400"
-                            )}>{entry.status}</span>
-                          </div>
+          <div className="bg-white border border-brand-border rounded-xl overflow-x-auto modern-shadow">
+            <table className="w-full border-collapse min-w-[600px]">
+              <thead>
+                <tr className="bg-slate-50/30 border-b border-brand-border">
+                  <th className="px-3 py-2 text-left font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Member</th>
+                  <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Buy-In</th>
+                  <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Payout</th>
+                  <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Adjust</th>
+                  <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Net</th>
+                  <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {entries.map((entry) => (
+                  <tr key={entry.id} className={cn("group hover:bg-slate-50 transition-all", entry.status === 'finished' && "bg-slate-50/5 opacity-80")}>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{entry.playerDisplayName}</p>
+                          <span className={cn(
+                            "text-[6px] font-mono border px-1 rounded uppercase tracking-tighter",
+                            entry.status === 'playing' ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-slate-50 border-slate-100 text-slate-400"
+                          )}>{entry.status}</span>
                         </div>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <p className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
-                        {entry.buyIns.some(b => b.method === 'credit') && (
-                          <span className="text-[6px] font-mono text-rose-500 uppercase tracking-widest font-bold">Credit</span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <p className="text-[11px] font-black text-slate-900">{entry.totalPayout > 0 ? formatCurrency(entry.totalPayout) : '—'}</p>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <p className={cn("text-[11px] font-black", (entry.adjustments?.length || 0) > 0 ? "text-blue-500" : "text-slate-300")}>
-                          {formatCurrency(entry.adjustments?.reduce((acc, adj) => acc + adj.amount, 0) || 0)}
-                        </p>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <p className={cn("text-[12px] font-black tracking-tight", entry.netProfit >= 0 ? "text-emerald-600" : "text-rose-500")}>
-                          {entry.netProfit > 0 ? '+' : ''}{formatCurrency(entry.netProfit)}
-                        </p>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <div className="flex justify-end gap-1">
-                          <button 
-                             onClick={() => {
-                               setSelectedEntryId(entry.id);
-                               setModalMode('buyin');
-                             }}
-                             disabled={session.status === 'completed' || entry.status === 'finished'}
-                             className="px-2 py-1 bg-slate-900 text-white rounded text-[7px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-5"
-                          >
-                             Buy
-                          </button>
-                          <button 
-                             onClick={() => {
-                               setSelectedEntryId(entry.id);
-                               setModalMode('settle');
-                             }}
-                             disabled={session.status === 'completed'}
-                             className="px-2 py-1 border border-brand-border text-slate-900 rounded text-[7px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all disabled:opacity-5"
-                          >
-                             Out
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="bg-white border border-brand-border rounded-xl overflow-x-auto modern-shadow">
-              <table className="w-full border-collapse min-w-[700px]">
-                <thead>
-                  <tr className="bg-blue-50/30 border-b border-brand-border">
-                    <th className="px-3 py-2 text-left font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Player</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Total In</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Total Out</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Settled/AR</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Adjustments</th>
-                    <th className="px-3 py-2 text-right font-mono text-[7px] uppercase tracking-widest text-slate-400 font-black">Net</th>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <p className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
+                      {entry.buyIns.some(b => b.method === 'credit') && (
+                        <span className="text-[6px] font-mono text-rose-500 uppercase tracking-widest font-bold">Credit</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <p className="text-[11px] font-black text-slate-900">{entry.totalPayout > 0 ? formatCurrency(entry.totalPayout) : '—'}</p>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <p className={cn("text-[11px] font-black", (entry.adjustments?.length || 0) > 0 ? "text-blue-500" : "text-slate-300")}>
+                        {formatCurrency(entry.adjustments?.reduce((acc, adj) => acc + adj.amount, 0) || 0)}
+                      </p>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <p className={cn("text-[12px] font-black tracking-tight", entry.netProfit >= 0 ? "text-emerald-600" : "text-rose-500")}>
+                        {entry.netProfit > 0 ? '+' : ''}{formatCurrency(entry.netProfit)}
+                      </p>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button 
+                           onClick={() => {
+                             setSelectedEntryId(entry.id);
+                             setModalMode('buyin');
+                           }}
+                           disabled={session.status === 'completed' || entry.status === 'finished'}
+                           className="px-2 py-1 bg-slate-900 text-white rounded text-[7px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-5"
+                        >
+                           Buy
+                        </button>
+                        <button 
+                           onClick={() => {
+                             setSelectedEntryId(entry.id);
+                             setModalMode('settle');
+                             setReturnedChips('');
+                             setCashOutAmount('');
+                           }}
+                           disabled={session.status === 'completed'}
+                           className="px-2 py-1 border border-brand-border text-slate-900 rounded text-[7px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all disabled:opacity-5"
+                        >
+                           Out
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-brand-border">
-                  {entries.map(entry => {
-                    const totalCredit = entry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0);
-                    const balAR = totalCredit - (entry.totalSettled || 0);
-                    
-                    return (
-                      <tr key={entry.id} className="hover:bg-slate-50 transition-all">
-                        <td className="px-3 py-2">
-                           <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{entry.playerDisplayName}</p>
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          <p className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalBuyIn)}</p>
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          <p className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalPayout)}</p>
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          <div className="flex flex-col items-end">
-                            <span className="text-[11px] font-black text-slate-900">{formatCurrency(entry.totalSettled || 0)}</span>
-                            {balAR > 0 && <span className="text-[6px] font-mono text-rose-500 uppercase font-black">AR: {formatCurrency(balAR)}</span>}
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          <div className="flex flex-col items-end gap-1">
-                            {entry.adjustments?.map((adj, i) => (
-                              <div key={i} className="flex items-center gap-1.5 group/adj">
-                                <Trash2 
-                                  size={8} 
-                                  className="text-slate-200 hover:text-rose-500 cursor-pointer" 
-                                  onClick={() => removeAdjustment(entry.id, i)}
-                                />
-                                <span className="text-[8px] font-mono text-slate-400">{adj.reason}:</span>
-                                <span className={cn("text-[10px] font-black", adj.amount >= 0 ? "text-emerald-500" : "text-rose-500")}>
-                                  {adj.amount >= 0 ? '+' : ''}{formatCurrency(adj.amount)}
-                                </span>
-                              </div>
-                            ))}
-                            <div className="flex flex-col gap-1 items-end pt-1 mt-1 border-t border-slate-100">
-                               <input 
-                                 placeholder="Reason"
-                                 className="text-[8px] p-1 bg-slate-50 border border-brand-border rounded w-20 outline-none focus:border-blue-500"
-                                 id={`adj-reason-${entry.id}`}
-                               />
-                               <div className="flex gap-1">
-                                 <input 
-                                   type="number"
-                                   placeholder="Amt"
-                                   className="text-[8px] p-1 bg-slate-50 border border-brand-border rounded w-12 outline-none focus:border-blue-500"
-                                   id={`adj-amount-${entry.id}`}
-                                 />
-                                 <button 
-                                   onClick={async () => {
-                                     const reasonInput = document.getElementById(`adj-reason-${entry.id}`) as HTMLInputElement;
-                                     const amountInput = document.getElementById(`adj-amount-${entry.id}`) as HTMLInputElement;
-                                     if (reasonInput.value && amountInput.value) {
-                                       setAdjustmentReason(reasonInput.value);
-                                       setAdjustmentAmount(amountInput.value);
-                                       const reason = reasonInput.value;
-                                       const amount = parseFloat(amountInput.value);
-                                       if (!isNaN(amount)) {
-                                          try {
-                                            const newAdjustment = { amount, reason, timestamp: new Date().toISOString() };
-                                            const newAdjustments = [...(entry.adjustments || []), newAdjustment];
-                                            const netProfit = (entry.totalPayout || 0) - (entry.totalBuyIn || 0) + newAdjustments.reduce((acc, adj) => acc + adj.amount, 0);
-                                            await supabase.from('player_session_entries').update({ adjustments: newAdjustments, netProfit }).eq('id', entry.id);
-                                            await refreshData();
-                                            reasonInput.value = '';
-                                            amountInput.value = '';
-                                          } catch (e) { console.error(e); }
-                                       }
-                                     }
-                                   }}
-                                   className="text-[7px] font-black bg-blue-500 text-white px-1.5 rounded hover:bg-blue-600 transition-all uppercase"
-                                 >
-                                   Add
-                                 </button>
-                               </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                           <p className={cn("text-[12px] font-black tracking-tight", entry.netProfit >= 0 ? "text-emerald-600" : "text-rose-500")}>
-                             {entry.netProfit > 0 ? '+' : ''}{formatCurrency(entry.netProfit)}
-                           </p>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Dense Staff & Support Section */}
@@ -1073,7 +953,7 @@ export function SessionDetail() {
                     <div className="flex justify-between items-end mb-1">
                        <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">Amount</label>
                        <div className="text-right">
-                         <span className="text-[7px] font-mono text-slate-300 uppercase block leading-none">Total</span>
+                         <span className="text-[7px] font-mono text-slate-300 uppercase block leading-none">Total Buy-In</span>
                          <span className="text-xs font-black text-slate-900">{formatCurrency(selectedEntry?.totalBuyIn || 0)}</span>
                        </div>
                     </div>
@@ -1121,7 +1001,7 @@ export function SessionDetail() {
                   </div>
 
                   {(selectedEntry?.buyIns.length || 0) > 0 && (
-                    <div className="space-y-1 max-h-[120px] overflow-y-auto pr-1">
+                    <div className="space-y-1">
                       <span className="text-[7px] font-mono text-slate-300 uppercase tracking-widest block mb-1">Buy-In History</span>
                       {selectedEntry?.buyIns.map((bi, i) => (
                         <div key={i} className="flex justify-between items-center py-1 border-b border-brand-border border-dashed last:border-0 group/bi">
@@ -1162,130 +1042,179 @@ export function SessionDetail() {
               ) : modalMode === 'settle' ? (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Settlement Ledger</h2>
-                    <p className="text-xs text-slate-400 font-medium">Process payouts and verify seat integrity.</p>
+                    <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Chip Return & Settlement</h2>
+                    <p className="text-xs text-slate-400 font-medium">Verify chips and calculate final disbursement/settlement.</p>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-brand-border">
-                      <div className="relative group">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-brand-border space-y-4">
+                       <div className="flex justify-between items-end mb-1">
+                          <label className="text-[10px] font-mono uppercase tracking-widest font-black text-slate-400">Total Chips Returned</label>
+                          <span className="text-[8px] font-mono text-slate-300 uppercase font-black">Value in Dollars</span>
+                       </div>
+                       <div className="relative group">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors">$</span>
                         <input
                           type="number"
                           placeholder="0.00"
-                          value={cashOutAmount}
-                          onChange={(e) => setCashOutAmount(e.target.value)}
-                          className="w-full bg-white border border-brand-border p-4 pl-10 rounded-xl text-2xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
+                          value={returnedChips}
+                          onChange={(e) => setReturnedChips(e.target.value)}
+                          className="w-full bg-white border border-brand-border p-5 pl-10 rounded-xl text-3xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-sans"
                         />
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        {isEditingRecord && editingIndex !== null ? (
-                          PAYMENT_METHODS.map(method => (
-                            <button
-                              key={method.id}
-                              onClick={() => {
-                                const amt = parseFloat(cashOutAmount);
-                                if (!isNaN(amt)) updatePayout(selectedEntryId!, editingIndex, amt, method.id);
-                              }}
-                              className="py-3 bg-blue-50 border border-blue-500 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-700 hover:bg-blue-600 hover:text-white transition-all modern-shadow"
-                            >
-                              Update {method.label}
-                            </button>
-                          ))
-                        ) : (
-                          PAYMENT_METHODS.map(method => (
-                            <button
-                              key={method.id}
-                              onClick={() => cashOutPlayer(selectedEntryId!, method.id)}
-                              className="py-3 bg-white border border-brand-border rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all modern-shadow"
-                            >
-                              Pay {method.label}
-                            </button>
-                          ))
-                        )}
-                      </div>
-                    </div>
 
-                    <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl space-y-3">
-                       <div className="flex justify-between items-center">
-                         <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest font-black">Principal Recovery Suggestions</span>
-                         <span className="text-[8px] font-mono text-emerald-500 uppercase font-black italic">Click Appointed Method to Record</span>
-                       </div>
-                       <div className="space-y-2">
-                         {Object.entries(buyInBreakdown).map(([mid, val]) => {
-                           const buyInTotal = val as number;
-                           if (buyInTotal <= 0) return null;
-                           return (
-                             <button 
-                               key={mid} 
-                               onClick={() => cashOutPlayer(selectedEntryId!, mid as PaymentMethod, buyInTotal)}
-                               className="w-full flex justify-between items-center p-2 bg-white border border-brand-border rounded hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left group/suggest"
-                             >
-                               <div className="flex flex-col">
-                                 <span className="text-[8px] font-black uppercase text-slate-400 transition-colors group-hover/suggest:text-emerald-600">{PAYMENT_METHODS.find(m => m.id === mid)?.label}</span>
-                                 <span className="text-[7px] font-mono text-slate-300 uppercase italic">Original Buy-In: {formatCurrency(buyInTotal)}</span>
-                               </div>
-                               <div className="text-right">
-                                 <span className="text-[10px] font-black text-slate-900 block group-hover/suggest:text-emerald-600">{formatCurrency(buyInTotal)}</span>
-                                 <span className="text-[7px] font-mono text-emerald-500 uppercase font-black">Quick Record</span>
-                               </div>
-                             </button>
-                           );
-                         })}
-                      </div>
-                    </div>
+                      {/* Calculation Panel */}
+                      {selectedEntry && (
+                        <div className="space-y-3 pt-4 border-t border-brand-border">
+                          {(() => {
+                            const creditDebt = (selectedEntry.buyIns.filter(b => b.method === 'credit').reduce((a, b) => a + b.amount, 0)) - (selectedEntry.totalSettled || 0);
+                            const chips = parseFloat(returnedChips) || 0;
+                            const balance = chips - creditDebt;
 
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center border-b border-brand-border pb-2">
-                         <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black">Disbursement Records</span>
-                         <div className="text-right">
-                           <span className="text-[8px] font-mono text-slate-300 uppercase block">Total Payout</span>
-                           <span className="text-sm font-black text-emerald-600 font-sans tracking-tight">{formatCurrency(selectedEntry?.totalPayout || 0)}</span>
-                         </div>
-                      </div>
+                            return (
+                              <>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-tight text-slate-500">
+                                    <span>Chips Value</span>
+                                    <span>{formatCurrency(chips)}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-tight text-rose-500">
+                                    <span>Outstanding Credit</span>
+                                    <span>-{formatCurrency(creditDebt)}</span>
+                                  </div>
+                                </div>
+                                <div className={cn(
+                                  "p-4 rounded-xl flex justify-between items-center",
+                                  balance >= 0 ? "bg-emerald-50 border border-emerald-100" : "bg-rose-50 border border-rose-100"
+                                )}>
+                                   <div>
+                                     <span className="text-[8px] font-mono uppercase tracking-widest font-black opacity-60 block">
+                                       {balance >= 0 ? "Owed to Player" : "Debt Still Owed"}
+                                     </span>
+                                     <p className={cn("text-xl font-black leading-none", balance >= 0 ? "text-emerald-700" : "text-rose-700")}>
+                                       {formatCurrency(Math.abs(balance))}
+                                     </p>
+                                   </div>
+                                   <div className="text-right">
+                                      <span className="text-[8px] font-mono uppercase tracking-widest font-black opacity-60 block">Status</span>
+                                      <span className={cn("text-[9px] font-black uppercase", balance === 0 ? "text-slate-400" : (balance > 0 ? "text-emerald-600" : "text-rose-600"))}>
+                                        {balance === 0 ? "Balanced" : (balance > 0 ? "Payout Required" : "Settlement Needed")}
+                                      </span>
+                                   </div>
+                                </div>
 
-                      {(selectedEntry?.payouts?.length || 0) > 0 && (
-                        <div className="space-y-2 max-h-[120px] overflow-y-auto pr-2">
-                          {selectedEntry?.payouts?.map((p, i) => (
-                             <div key={i} className="flex justify-between items-center p-2 bg-slate-50 border border-brand-border border-dashed rounded text-[10px] group/item">
-                               <div className="flex items-center gap-2">
-                                 <Trash2 
-                                   size={10} 
-                                   className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors"
-                                   onClick={() => removePayout(selectedEntry.id, i)}
-                                 />
-                                 <Edit3
-                                   size={10}
-                                   className="text-slate-300 hover:text-blue-500 cursor-pointer transition-colors"
-                                   onClick={() => {
-                                      setEditingIndex(i);
-                                      setIsEditingRecord(true);
-                                      setCashOutAmount(p.amount.toString());
-                                   }}
-                                 />
-                                 <span className="font-black text-slate-900 uppercase">Paid: {PAYMENT_METHODS.find(m => m.id === p.method)?.label}</span>
-                               </div>
-                               <span className="font-sans font-black text-slate-600">{formatCurrency(p.amount)}</span>
-                             </div>
-                          ))}
+                                {/* Action Buttons */}
+                                {balance !== 0 && (
+                                  <div className="space-y-3 pt-2">
+                                     <div className="flex justify-between items-center">
+                                       <label className="text-[9px] font-mono uppercase tracking-widest font-black text-slate-400">
+                                         {balance > 0 ? "Select Payout Method" : "Select Settlement Method"}
+                                       </label>
+                                     </div>
+                                     <div className="grid grid-cols-2 gap-2">
+                                       {PAYMENT_METHODS.filter(m => m.id !== 'credit').map(method => (
+                                         <button
+                                           key={method.id}
+                                           onClick={async () => {
+                                             if (balance > 0) {
+                                               // Host pays player the balance
+                                               await cashOutPlayer(selectedEntry.id, method.id, balance);
+                                             } else {
+                                               // Player pays host the balance (negative)
+                                               const originalAmount = settlementAmount;
+                                               setSettlementAmount(Math.abs(balance).toString());
+                                               await settleCredit(selectedEntry.id, method.id);
+                                               setSettlementAmount(originalAmount);
+                                             }
+                                             setReturnedChips('');
+                                           }}
+                                           className={cn(
+                                             "py-3 border rounded-xl text-[9px] font-black uppercase tracking-widest transition-all modern-shadow",
+                                             balance > 0 
+                                               ? "bg-white border-brand-border text-slate-600 hover:bg-slate-900 hover:text-white" 
+                                               : "bg-rose-600 border-rose-700 text-white hover:bg-rose-700"
+                                           )}
+                                         >
+                                           {balance > 0 ? `Pay via ${method.label}` : `Settle via ${method.label}`}
+                                         </button>
+                                       ))}
+                                     </div>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       )}
+                    </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-slate-50 rounded-xl border border-brand-border">
-                          <span className="text-[8px] font-mono text-slate-400 uppercase block mb-1">Buy-In Base</span>
-                          <span className="text-base font-black text-slate-900">{formatCurrency(selectedEntry?.totalBuyIn || 0)}</span>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center border-b border-brand-border pb-2">
+                           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black">History</span>
+                           <div className="flex gap-4">
+                             <div className="text-right">
+                               <span className="text-[7px] font-mono text-slate-300 uppercase block">Total Payouts</span>
+                               <span className="text-xs font-black text-emerald-600">{formatCurrency(selectedEntry?.totalPayout || 0)}</span>
+                             </div>
+                             <div className="text-right">
+                               <span className="text-[7px] font-mono text-slate-300 uppercase block">Total Settled</span>
+                               <span className="text-xs font-black text-blue-500">{formatCurrency(selectedEntry?.totalSettled || 0)}</span>
+                             </div>
+                           </div>
                         </div>
-                        <div className="p-4 bg-slate-50 rounded-xl border border-brand-border">
-                          <span className="text-[8px] font-mono text-slate-400 uppercase block mb-1">Net Balance</span>
-                          <p className={cn("text-base font-black font-sans leading-none", (selectedEntry?.netProfit || 0) >= 0 ? "text-emerald-600" : "text-rose-500")}>
-                            {formatCurrency(selectedEntry?.netProfit || 0)}
-                          </p>
-                        </div>
-                      </div>
 
-                      <div className="flex gap-2 pt-4">
+                        {/* Adjustments */}
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-black">Manual Adjustments</span>
+                            <span className="text-[8px] font-mono text-blue-500 uppercase font-black">Current: {formatCurrency(selectedEntry?.adjustments?.reduce((a, b) => a + b.amount, 0) || 0)}</span>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {selectedEntry?.adjustments?.map((adj, i) => (
+                              <div key={i} className="flex justify-between items-center p-2 bg-blue-50/50 border border-blue-100 border-dashed rounded text-[10px]">
+                                <div className="flex items-center gap-2">
+                                  <Trash2 
+                                    size={10} 
+                                    className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors"
+                                    onClick={() => removeAdjustment(selectedEntry.id, i)}
+                                  />
+                                  <span className="font-black text-slate-900">[{adj.reason}]</span>
+                                </div>
+                                <span className={cn("font-black", adj.amount >= 0 ? "text-emerald-600" : "text-rose-500")}>
+                                  {adj.amount >= 0 ? '+' : ''}{formatCurrency(adj.amount)}
+                                </span>
+                              </div>
+                            ))}
+                            
+                            <div className="flex gap-2 items-center bg-slate-50 p-2 rounded-xl">
+                              <input 
+                                placeholder="Reason"
+                                value={adjustmentReason}
+                                onChange={(e) => setAdjustmentReason(e.target.value)}
+                                className="flex-1 bg-white border border-brand-border rounded-lg p-2 text-[10px] outline-none font-bold"
+                              />
+                              <div className="relative">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">$</span>
+                                <input 
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={adjustmentAmount}
+                                  onChange={(e) => setAdjustmentAmount(e.target.value)}
+                                  className="w-16 bg-white border border-brand-border rounded-lg p-2 pl-4 text-[10px] outline-none font-bold"
+                                />
+                              </div>
+                              <button 
+                                onClick={() => addAdjustment(selectedEntry.id)}
+                                className="bg-slate-900 text-white px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800"
+                              >
+                                Add
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-4">
                         <button 
                            onClick={() => toggleEntryStatus(selectedEntryId!)}
                            className={cn(
@@ -1373,7 +1302,7 @@ export function SessionDetail() {
 
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-black block">Settlement History</span>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                    <div className="space-y-2 pr-2">
                        {selectedEntry?.creditSettlements?.map((s, i) => (
                          <div key={i} className="flex justify-between items-center p-3 bg-slate-50 border border-brand-border border-dashed rounded group/item">
                            <div className="flex items-center gap-2">
