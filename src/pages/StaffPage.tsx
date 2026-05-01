@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Staff } from '../types';
-import { Star, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Star, Plus, Edit2, Trash2, Shield } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 

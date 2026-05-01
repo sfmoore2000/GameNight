@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Location } from '../types';
-import { Plus, MapPin, Building, Edit2, Trash2 } from 'lucide-react';
+import { Plus, MapPin, Building, Edit2, Trash2, Shield } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 

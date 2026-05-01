@@ -55,6 +55,17 @@ export interface PlayerSessionEntry {
   totalBuyIn: number;
   payouts: Payout[];
   totalPayout: number;
+  creditSettlements?: {
+    amount: number;
+    method: PaymentMethod;
+    timestamp: string;
+  }[];
+  totalSettled?: number;
+  adjustments?: {
+    amount: number;
+    reason: string;
+    timestamp: string;
+  }[];
   netProfit: number;
   status: 'playing' | 'finished';
 }
