@@ -1,4 +1,3 @@
-import { User } from 'firebase/auth';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Users, MapPin, Sparkles, LogOut, Menu, X, Club, BarChart3 } from 'lucide-react';
 import { useState, ReactNode } from 'react';
@@ -6,7 +5,7 @@ import { cn } from '../lib/utils';
 
 interface LayoutProps {
   children: ReactNode;
-  user: User;
+  user: any;
   onLogout: () => void;
 }
 
@@ -56,10 +55,17 @@ export function Layout({ children, user, onLogout }: LayoutProps) {
         </nav>
 
         <div className="mt-auto pt-8 border-t border-brand-border">
-          <div className="flex items-center gap-3 mb-6 p-2 rounded-xl bg-white border border-brand-border/50 modern-shadow">
-            <img src={user.photoURL || ''} alt="" className="w-10 h-10 rounded-lg border border-brand-border shadow-sm" />
+          <div className="flex items-center gap-3 mb-6 p-2 rounded-xl bg-white border border-brand-border/50 modern-shadow overflow-hidden">
+            <img 
+              src={user.user_metadata?.avatar_url || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.displayName || 'User')}&background=random`} 
+              referrerPolicy="no-referrer"
+              alt="" 
+              className="w-10 h-10 rounded-lg border border-brand-border shadow-sm shrink-0 object-cover" 
+            />
             <div className="overflow-hidden">
-              <p className="text-[10px] font-black uppercase tracking-tight truncate">{user.displayName}</p>
+              <p className="text-[10px] font-black uppercase tracking-tight truncate">
+                {user.user_metadata?.full_name || user.displayName || 'User'}
+              </p>
               <p className="text-[9px] font-mono text-slate-400 truncate">{user.email}</p>
             </div>
           </div>
