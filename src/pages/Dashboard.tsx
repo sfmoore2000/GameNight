@@ -113,60 +113,60 @@ export function Dashboard() {
       {/* Modern Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest rounded leading-none">System Active</span>
-            <h1 className="text-3xl font-black uppercase tracking-tight text-slate-900">Dashboard</h1>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded leading-none">System Active</span>
+            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-slate-900">Dashboard</h1>
           </div>
-          <p className="text-slate-500 font-medium text-sm border-l-2 border-emerald-500 pl-4 opacity-80">
-            Unified operations control for poker session deployments.
+          <p className="text-slate-500 font-medium text-sm sm:text-base border-l-2 border-emerald-500 pl-4 opacity-80 max-w-lg">
+            High-performance operations control for private poker deployments.
           </p>
         </div>
         
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
           <button 
             onClick={() => setIsCreating(true)}
-            className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
+            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white font-sans text-xs uppercase tracking-widest font-black transition-all hover:bg-slate-800 rounded-xl modern-shadow-lg"
           >
-            <Plus size={16} />
-            New Session
+            <Plus size={18} />
+            New Deployment
           </button>
         </div>
       </div>
 
       {/* High-Density Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-3 mb-3">
-             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><Activity size={16} /></div>
-             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Live Circuits</span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="bg-white border border-brand-border p-6 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-4">
+             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><Activity size={18} /></div>
+             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Live Circuits</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black text-slate-900">{sessions.filter(s => s.status === 'active').length}</p>
-            <span className="text-[9px] text-slate-400 font-bold uppercase">Active Now</span>
+            <p className="text-4xl font-black text-slate-900">{sessions.filter(s => s.status === 'active').length}</p>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Active</span>
           </div>
         </div>
 
-        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-3 mb-3">
-             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><DollarSign size={16} /></div>
-             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Market Volume</span>
+        <div className="bg-white border border-brand-border p-6 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-4">
+             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><DollarSign size={18} /></div>
+             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Market Volume</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black text-slate-900">{formatCurrency(sessions.reduce((acc, s) => acc + (s.totalBuyIn || 0), 0))}</p>
-            <span className="text-[9px] text-slate-400 font-bold uppercase">Gross</span>
+            <p className="text-4xl font-black text-slate-900">{formatCurrency(sessions.reduce((acc, s) => acc + (s.totalBuyIn || 0), 0))}</p>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Total</span>
           </div>
         </div>
 
-        <div className="bg-white border border-brand-border p-5 rounded-xl modern-shadow group hover:border-slate-300 transition-all">
-          <div className="flex items-center gap-3 mb-3">
-             <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><ChevronRight size={16} /></div>
-             <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Capital Velocity</span>
+        <div className="bg-white border border-brand-border p-6 rounded-2xl modern-shadow group hover:border-slate-300 transition-all">
+          <div className="flex items-center gap-3 mb-4">
+             <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors"><ChevronRight size={18} /></div>
+             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Avg Performance</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black text-slate-900 text-emerald-600">
+            <p className="text-4xl font-black text-emerald-600">
               {formatCurrency(sessions.length ? sessions.reduce((acc, s) => acc + (s.totalPayout || 0), 0) / sessions.length : 0)}
             </p>
-            <span className="text-[9px] text-slate-400 font-bold uppercase">Avg Net</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Per Session</span>
           </div>
         </div>
       </div>
@@ -182,60 +182,60 @@ export function Dashboard() {
         </div>
         
         {sessions.length === 0 ? (
-          <div className="py-16 text-center border-2 border-dashed border-brand-border rounded-xl bg-slate-50/50">
-            <p className="text-slate-400 font-medium mb-4 uppercase tracking-widest text-[10px]">No Logs Found</p>
+          <div className="py-24 text-center border-2 border-dashed border-brand-border rounded-xl bg-slate-50/50 px-6">
+            <p className="text-slate-400 font-medium mb-6 uppercase tracking-widest text-xs">No Deployment Logs Found</p>
             <button 
               onClick={() => import('../lib/seed').then(m => m.seedDatabase())}
-              className="px-8 py-3 bg-white border border-brand-border text-slate-900 rounded-lg text-xs font-black uppercase tracking-widest modern-shadow hover:bg-slate-900 hover:text-white transition-all"
+              className="px-10 py-4 bg-white border border-brand-border text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest modern-shadow hover:bg-slate-900 hover:text-white transition-all w-full sm:w-auto"
             >
               Seed Environment
             </button>
           </div>
         ) : (
-          <div className="bg-white border border-brand-border rounded-xl overflow-hidden modern-shadow">
-            <table className="w-full text-left border-collapse">
+          <div className="bg-white border border-brand-border rounded-2xl overflow-x-auto modern-shadow">
+            <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-brand-border">
-                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Deployment ID</th>
-                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Venue</th>
-                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold">Financial Pool</th>
-                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold text-center">Status</th>
-                  <th className="px-6 py-4 font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold text-right">Operations</th>
+                  <th className="px-6 py-5 font-mono text-[10px] uppercase tracking-widest text-slate-400 font-black">Date</th>
+                  <th className="px-6 py-5 font-mono text-[10px] uppercase tracking-widest text-slate-400 font-black">Venue</th>
+                  <th className="px-6 py-5 font-mono text-[10px] uppercase tracking-widest text-slate-400 font-black">Gross Pool</th>
+                  <th className="px-6 py-5 font-mono text-[10px] uppercase tracking-widest text-slate-400 font-black text-center">Status</th>
+                  <th className="px-6 py-5 font-mono text-[10px] uppercase tracking-widest text-slate-400 font-black text-right">Ops</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border">
                 {sessions.map((session) => (
                   <tr key={session.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-6">
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-900">{format(parseISO(session.date), 'MMM d, yyyy')}</span>
-                        <span className="font-mono text-[7px] text-slate-300 uppercase mt-0.5 tracking-tighter">#{session.id.slice(0, 8)}</span>
+                        <span className="text-sm font-black text-slate-900">{format(parseISO(session.date), 'MMM d, yyyy')}</span>
+                        <span className="font-mono text-[8px] text-slate-300 uppercase mt-0.5 tracking-widest">#{session.id.slice(0, 8)}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin size={12} className="text-slate-300" />
-                        <span className="text-[11px] font-semibold text-slate-600">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-3">
+                        <MapPin size={14} className="text-slate-300" />
+                        <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">
                           {locations.find(l => l.id === session.locationId)?.name || 'Restricted HUB'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-xs font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</span>
+                    <td className="px-6 py-6">
+                      <span className="text-sm font-black text-slate-900">{formatCurrency(session.totalBuyIn || 0)}</span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-6 py-6 text-center">
                       <span className={cn(
-                        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ring-1 ring-inset",
+                        "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ring-1 ring-inset",
                         session.status === 'active' 
                           ? "bg-emerald-50 text-emerald-700 ring-emerald-200" 
                           : "bg-slate-100 text-slate-500 ring-slate-200"
                       )}>
-                        {session.status === 'active' && <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />}
+                        {session.status === 'active' && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />}
                         {session.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center justify-end gap-3">
                         <button
                           onClick={(e) => { 
                             e.preventDefault(); 
@@ -243,14 +243,14 @@ export function Dashboard() {
                             setSessionToDelete(session);
                             setDeleteConfirmationInput('');
                           }}
-                          className="p-1.5 text-slate-200 hover:text-rose-600 transition-all group-hover:text-slate-300"
+                          className="p-2 text-slate-300 hover:text-rose-600 transition-all"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={18} />
                         </button>
                         <Link
                           to={`/sessions/${session.id}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="px-4 py-2 bg-white border border-brand-border text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all modern-shadow"
+                          className="px-5 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all modern-shadow"
                         >
                           Audit
                         </Link>

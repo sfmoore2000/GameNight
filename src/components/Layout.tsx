@@ -91,27 +91,30 @@ export function Layout({ children, user, onLogout }: LayoutProps) {
       </header>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-brand-bg p-8 flex flex-col pt-24 text-center">
-          <nav className="space-y-8">
+        <div className="md:hidden fixed inset-0 z-40 bg-white p-8 flex flex-col pt-24">
+          <nav className="space-y-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={cn(
-                  "block text-3xl font-serif italic tracking-tighter py-2 border-b border-brand-border/10",
-                  location.pathname === item.href ? "opacity-100" : "opacity-40"
+                  "flex items-center gap-4 px-6 py-5 rounded-2xl transition-all font-black uppercase text-xl tracking-tight border border-transparent shadow-sm",
+                  location.pathname === item.href 
+                    ? "bg-slate-900 text-white modern-shadow shadow-slate-900/40" 
+                    : "text-slate-500 bg-slate-50 border-slate-100 hover:bg-slate-100"
                 )}
               >
+                <item.icon size={28} className={cn(location.pathname === item.href ? "text-emerald-400" : "text-slate-300")} />
                 {item.label}
               </Link>
             ))}
           </nav>
           <button
             onClick={onLogout}
-            className="mt-auto py-5 bg-black text-white border border-brand-border font-mono uppercase text-sm tracking-widest"
+            className="mt-auto py-6 bg-rose-600 text-white rounded-2xl font-black uppercase text-sm tracking-widest modern-shadow shadow-rose-600/30"
           >
-            Logout
+            Terminate Session
           </button>
         </div>
       )}
